@@ -4,7 +4,7 @@ import json
 from streamlit_gsheets import GSheetsConnection
 import pandas as pd
 from datetime import datetime
-from google import genai
+import requests
 
 st.set_page_config(page_title="NYC TRAIL PLANNER", page_icon="🤠", layout="centered")
 
@@ -51,7 +51,7 @@ st.markdown("""
         padding: 15px !important;
     }
     
-    /* Stats Extander Custom Outline Framework */
+    /* Stats Expander Custom Outline Framework */
     div[data-testid="stExpander"] {
         background-color: #000000 !important;
         border: 3px solid #33ff33 !important;
@@ -87,7 +87,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<h1>== NYC TRAIL PLANNER v6.0 ==</h1>", unsafe_allow_html=True)
+st.markdown("<h1>== NYC TRAIL PLANNER v6.5 ==</h1>", unsafe_allow_html=True)
 
 # ==============================================================================
 # DASHBOARD SYSTEM CONTROL HEADER
@@ -97,10 +97,9 @@ with col_info:
     with st.popover("ℹ️ VIEW SYSTEM WORKFLOW"):
         st.markdown("<h3 style='color: #33ff33 !important;'>== AUTOMATED BACKEND LOOP ==</h3>", unsafe_allow_html=True)
         st.write("🤖 **1. STACK:** Drop your random sector and map custom itinerary components.")
-        st.write("🧠 **2. COGNITION:** Gemini inputs your JSON file strings as baseline rules, then customizes them.")
+        st.write("🧠 **2. ENHANCEMENT:** Hugging Face serverless logic parses your local JSON blueprint, amping its creative profile.")
         st.write("📸 **3. CAPTURE:** Take photos natively on your device camera roll while executing operations.")
         st.write("📊 **4. TRANSMIT:** Appends a text telemetry log row straight to your shared Google Sheet.")
-        st.write("🖼️ **5. PUSH MEDIA:** Manually dump the afternoon's best frames into your fixed shared master album folder.")
 
 with col_toggle:
     demo_mode = st.toggle("🛠️ DEMO MODE", value=False, help="Blocks all Google Sheets writes and simulates staging logs.")
@@ -111,16 +110,17 @@ if demo_mode:
 st.write("--------------------------------------------------")
 
 # ==============================================================================
-# INITIALIZE DATABASE & API CONFIGURATIONS
+# INITIALIZE FREE HUGGING FACE INFERENCE CLIENT
 # ==============================================================================
 ai_enabled = False
-if "GEMINI_API_KEY" in st.secrets:
-    try:
-        ai_client = genai.Client(api_key=st.secrets["GEMINI_API_KEY"])
-        ai_enabled = True
-    except Exception:
-        ai_enabled = False
+if "HF_API_KEY" in st.secrets:
+    HF_API_KEY = st.secrets["HF_API_KEY"]
+    # Endpoint architecture targeting Meta Llama-3 structural compilation open-source model
+    API_URL = "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct"
+    headers = {"Authorization": f"Bearer {HF_API_KEY}"}
+    ai_enabled = True
 
+# Load JSON Data rations
 try:
     with open("adventures.json", "r") as file:
         adventure_pool = json.load(file)
@@ -159,7 +159,6 @@ else:
     overrides = adventure_pool.get("special_overrides", {})
     has_override = st.session_state.current_hood in overrides and "packages" in overrides[st.session_state.current_hood]
 
-    # Display configuration buttons only if we are actively planning the trip layout
     if not st.session_state.show_debrief:
         st.write("CHOOSE YOUR STRATEGY FOR THE NEXT STOP IN THIS AREA:")
         col1, col2, col3 = st.columns(3)
@@ -173,7 +172,7 @@ else:
             if st.button("➕ ADD CHILL"): chosen_mood = "CHILL"
 
         # ==============================================================================
-        # STEP 2: DUAL-BRANCH GEMINI CREATIVE SYNTHESIS GATEWAY
+        # STEP 2: DUAL-BRANCH HUGGING FACE FREE COGNITIVE ENGINE
         # ==============================================================================
         if chosen_mood:
             is_legendary = False
@@ -196,67 +195,61 @@ else:
 
             if ai_enabled:
                 is_ai = True
-                with st.spinner("🧠 ENGAGING DUAL-ENGINE GEMINI CONTEXT CORES..."):
+                with st.spinner("🧠 ENGAGING FREE HUGGING FACE COGNITION MATRIX..."):
                     try:
                         if activate_live_map:
                             # BRANCH A: DYNAMIC PHYSICAL GEO-MAPPING
-                            prompt = f"""
+                            prompt_text = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
                             You are the advanced content-enhancement engine for an offline retro text adventure game set in NYC called "NYC TRAIL PLANNER".
-                            Current Drop Sector Location: {st.session_state.current_hood}
-                            Strategy Component Action Category: {chosen_mood}
-
-                            DATA SEED FROM BLUEPRINT:
+                            Match the tone of a high-tech tactical terminal or cyberpunk operative deck.
+                            STRICT DIETARY BOUNDARY: If food is referenced, the target venue and food item MUST be strictly pescatarian (fish/seafood/dairy/eggs allowed; NO land meats/broths) and COMPLETELY AVOCADO-FREE. Do not include avocados under any circumstances.
+                            Output your response in exactly this strict raw text structure with no extra conversational banter:
+                            VIBE: [Text here]
+                            MISSION: [Text here]<|eot_id|><|start_header_id|>user<|end_header_id|>
+                            Enhance this setup for the location '{st.session_state.current_hood}' and action '{chosen_mood}'.
                             BASE VIBE: {base_vibe}
                             BASE MISSION: {base_mission}
-
-                            INSTRUCTIONS:
-                            Take the concepts, photography framing rules, and constraints from the BASE MISSION and amplify the creative text.
-                            Then, map it directly onto real, specific, highly-rated physical storefronts, venues, or street landmarks within {st.session_state.current_hood}.
-                            
-                            STRICT DIETARY BOUNDARY: If food is referenced, the target spot and food item MUST be strictly pescatarian (fish/seafood/dairy/eggs allowed; NO land meats/broths) and COMPLETELY AVOCADO-FREE. Do not include avocados under any circumstances.
-                            Match the tone of a high-tech tactical terminal or cyberpunk operative deck.
-
-                            Output your response in exactly this strict raw text structure, with no extra chatter or markdown bolding around titles:
-                            VIBE: [Enhanced environment vibe in ALL CAPS, weaving in real local landmarks]
-                            MISSION: [Enhanced action assignment, anchoring the base mission rules to a real physical venue coordinate]
-                            """
+                            INSTRUCTIONS: Take the photography framing rules and constraints from the BASE MISSION, amplify the text styling, and map it directly onto a real, specific, highly-rated physical venue or landmark inside {st.session_state.current_hood}.<|eot_id|><|start_header_id|>assistant<|end_header_id|>"""
                         else:
                             # BRANCH B: CONCEPTUAL CREATIVE AMPLIFICATION (PURE IMAGINATION)
-                            prompt = f"""
+                            prompt_text = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
                             You are the creative amplification engine for an offline retro text adventure game set in NYC called "NYC TRAIL PLANNER".
-                            Current Drop Sector Location: {st.session_state.current_hood}
-                            Strategy Component Action Category: {chosen_mood}
-
-                            DATA SEED FROM BLUEPRINT:
+                            Match the tone of a high-tech tactical terminal or cyberpunk operative deck.
+                            STRICT DIETARY BOUNDARY: If food is referenced, keep descriptions strictly pescatarian and completely avocado-free.
+                            CRITICAL RESTRICTION: Do NOT name or recommend real-world commercial business storefronts, restaurants, or specific shops. Keep it generalized to architectural types (e.g., "a dim-lit neon window", "an old brick stoop").
+                            Output your response in exactly this strict raw text structure with no extra conversational banter:
+                            VIBE: [Text here]
+                            MISSION: [Text here]<|eot_id|><|start_header_id|>user<|end_header_id|>
+                            Enhance this setup for the location '{st.session_state.current_hood}' and action '{chosen_mood}'.
                             BASE VIBE: {base_vibe}
                             BASE MISSION: {base_mission}
+                            INSTRUCTIONS: Use this base blueprint purely as an imaginative launching pad. Amp up the flavor text, add rich cinematic atmospheric descriptors, and inject unique narrative objective twists.<|eot_id|><|start_header_id|>assistant<|end_header_id|>"""
 
-                            INSTRUCTIONS:
-                            Use this base blueprint purely as an imaginative launching pad. Amp up the flavor text, add rich cinematic atmospheric descriptors, and inject a creative or dramatic narrative objective.
-                            CRITICAL RESTRICTION: Do NOT name or recommend real-world commercial business storefronts, restaurants, or specific shops. Keep it generalized to architectural types (e.g., "a dim-lit neon window", "an old brick stoop").
-                            
-                            STRICT DIETARY BOUNDARY: If food is referenced, keep descriptions strictly pescatarian and completely avocado-free.
-                            Match the tone of a high-tech tactical terminal or cyberpunk operative deck.
-
-                            Output your response in exactly this strict raw text structure, with no extra chatter or markdown bolding around titles:
-                            VIBE: [Amplified descriptive environment vibe in ALL CAPS using pure atmospheric and architectural textures]
-                            MISSION: [Amplified action assignment, elevating the base photography framing rules with creative storytelling twists]
-                            """
+                        payload = {
+                            "inputs": prompt_text,
+                            "parameters": {"max_new_tokens": 250, "temperature": 0.7, "return_full_text": False}
+                        }
                         
-                        response = ai_client.models.generate_content(
-                            model='gemini-1.5-flash',
-                            contents=prompt,
-                        )
-                        ai_text = response.text
+                        response = requests.post(API_URL, headers=headers, json=payload)
+                        response_data = response.json()
+                        
+                        # Handle potential raw list wrapped objects depending on HF inference routing maps
+                        if isinstance(response_data, list):
+                            output_text = response_data[0]['generated_text']
+                        else:
+                            output_text = response_data['generated_text']
+                        
+                        # Isolate just the text produced past the token header boundaries
+                        ai_response = output_text.split("<|start_header_id|>assistant<|end_header_id|准确>")[-1].strip()
                         
                         vibe = base_vibe
-                        mission = ai_text
-                        for line in ai_text.split("\n"):
+                        mission = ai_response
+                        for line in ai_response.split("\n"):
                             if line.strip().startswith("VIBE:"): vibe = line.replace("VIBE:", "").strip()
                             if line.strip().startswith("MISSION:"): mission = line.replace("MISSION:", "").strip()
                             
                     except Exception as e:
-                        vibe = base_vibe + " (AI Pipeline Error)"
+                        vibe = base_vibe + " (Serverless Pipeline Fallback)"
                         mission = base_mission
             else:
                 vibe = base_vibe
@@ -326,9 +319,7 @@ else:
                     </div>
                 """, unsafe_allow_html=True)
 
-        # ==============================================================================
-        # 📈 DIAGNOSTIC ANALYTICS EXPANDER ("STATS FOR NERDS")
-        # ==============================================================================
+        # --- DIAGNOSTIC ANALYTICS EXPANDER ("STATS FOR NERDS") ---
         with st.expander("📊 STATS FOR NERDS (DIAGNOSTIC ANALYTICS)"):
             total_stops = len(st.session_state.order_list)
             active_items = [itinerary_map[l] for l in st.session_state.order_list if l in itinerary_map]
