@@ -11,7 +11,8 @@ import requests
 # ==============================================================================
 st.set_page_config(page_title="NYC TRAIL PLANNER", page_icon="🤠", layout="centered")
 
-st.title("== NYC TRAIL PLANNER v9.0 ==")
+st.title("== NYC TRAIL PLANNER v10.0 ==")
+
 # ==============================================================================
 # DASHBOARD SYSTEM CONTROL HEADER
 # ==============================================================================
@@ -20,7 +21,7 @@ with col_info:
     with st.popover("ℹ️ VIEW SYSTEM WORKFLOW"):
         st.markdown("### == AUTOMATED BACKEND LOOP ==")
         st.write("🤖 **1. STACK:** Drop random location coordinates and load objective matrices.")
-        st.write("🧠 **2. ENHANCEMENT:** Hugging Face serverless logic parses your local JSON blueprint, locking context based on category.")
+        st.write("🧠 **2. ENHANCEMENT:** High-speed Hugging Face router optimizes text strings instantly.")
         st.write("📸 **3. CAPTURE:** Document field entries natively on your camera roll.")
         st.write("📊 **4. TRANSMIT:** Appends mission telemetry rows directly to your shared Google Sheet.")
 
@@ -33,14 +34,17 @@ if demo_mode:
 st.write("--------------------------------------------------")
 
 # ==============================================================================
-# INITIALIZE FREE HUGGING FACE INFERENCE CLIENT
+# INITIALIZE HIGH-SPEED HUGGING FACE INFERENCE ROUTER
 # ==============================================================================
 ai_enabled = False
 if "HF_API_KEY" in st.secrets:
     HF_API_KEY = st.secrets["HF_API_KEY"]
+    # Upgraded high-speed router endpoint (OpenAI compatible chat structures)
     API_URL = "https://router.huggingface.co/hf-inference/v1/chat/completions"
-
-    headers = {"Authorization": f"Bearer {HF_API_KEY}"}
+    headers = {
+        "Authorization": f"Bearer {HF_API_KEY}",
+        "Content-Type": "application/json"
+    }
     ai_enabled = True
 
 # Load JSON Data rations
@@ -66,6 +70,8 @@ if "itinerary" not in st.session_state: st.session_state.itinerary = []
 if "order_list" not in st.session_state: st.session_state.order_list = []
 if "show_debrief" not in st.session_state: st.session_state.show_debrief = False
 if "active_trigger" not in st.session_state: st.session_state.active_trigger = None
+# TRACKER WALLED IN: Remembers exact missions added during the session to completely prevent duplication
+if "used_missions" not in st.session_state: st.session_state.used_missions = []
 
 try:
     conn = st.connection("gsheets", type=GSheetsConnection)
@@ -85,6 +91,7 @@ if not st.session_state.started:
             st.session_state.order_list = []
             st.session_state.show_debrief = False
             st.session_state.active_trigger = None
+            st.session_state.used_missions = []
             st.rerun()
 else:
     st.markdown(f"### [DROPPED SECTOR]: {st.session_state.current_hood}")
@@ -104,7 +111,7 @@ else:
             if st.button("➕ ADD CHILL"): st.session_state.active_trigger = "CHILL"
 
         # ==============================================================================
-        # STEP 2: STOCHASTIC & AI AMPLIFICATION ENGINE (GEOGRAPHICALLY ANCHORED)
+        # STEP 2: STOCHASTIC & AI AMPLIFICATION ENGINE (WITH PARSING REINFORCEMENTS)
         # ==============================================================================
         if st.session_state.active_trigger:
             current_action = st.session_state.active_trigger
@@ -123,62 +130,78 @@ else:
                 valid_missions = [m for m in chosen_package["missions"] if current_action in m.upper() or (current_action == "WALK" and "EAT" not in m.upper() and "CHILL" not in m.upper())]
                 if not valid_missions:
                     valid_missions = chosen_package["missions"]
-                base_mission = random.choice(valid_missions)
+                
+                # Filter out used special override missions if possible
+                unused_override = [m for m in valid_missions if m not in st.session_state.used_missions]
+                base_mission = random.choice(unused_override if unused_override else valid_missions)
                 is_legendary = True
             else:
                 if current_action == "EAT":
                     base_vibe = "CULINARY INTERCEPT MATRIX // AVOCADO-FREE PESCATARIAN PROFILE"
-                    base_mission = random.choice(adventure_pool["EAT"]["missions"]) if "EAT" in adventure_pool else "Locate a marketplace or window ledge. Secure shared plates. Zero land-animal broths or meats, zero avocados."
+                    pool = adventure_pool.get("EAT", {}).get("missions", ["Locate a marketplace counter. Secure shared plates. Zero land-meat broths, zero avocados."])
+                    # Strict Deduplication Filter
+                    unused = [m for m in pool if m not in st.session_state.used_missions]
+                    base_mission = random.choice(unused if unused else pool)
                 elif current_action == "CHILL":
                     base_vibe = "STATIC STATIONARY ANCHOR // ATMOSPHERIC CALIBRATION"
-                    base_mission = random.choice(adventure_pool["CHILL"]["missions"]) if "CHILL" in adventure_pool else "Halt transit vector. Identify a step, bench, or architectural edge to process the local environment framework silently."
+                    pool = adventure_pool.get("CHILL", {}).get("missions", ["Halt transit vector. Identify a step or architectural ledge to sit silently."])
+                    unused = [m for m in pool if m not in st.session_state.used_missions]
+                    base_mission = random.choice(unused if unused else pool)
                 else:  # WALK
-                    base_vibe = random.choice(adventure_pool["vibes"])
-                    base_mission = random.choice(adventure_pool["WALK"]["missions"]) if "WALK" in adventure_pool else random.choice(adventure_pool.get("missions", ["Document structural geometric features on foot."]))
+                    base_vibe = random.choice(adventure_pool.get("vibes", ["URBAN ARCHITECTURE MATRIX"]))
+                    pool = adventure_pool.get("WALK", {}).get("missions", ["Document structural geometric features on foot."])
+                    unused = [m for m in pool if m not in st.session_state.used_missions]
+                    base_mission = random.choice(unused if unused else pool)
 
-            # Default values initialization before network attempt
+            # Document chosen blueprint text to prevent duplicate selections in future loop clicks
+            st.session_state.used_missions.append(base_mission)
+
+            # Default fallback initializations before entering network code
             vibe = base_vibe
             mission = base_mission
 
             if ai_enabled:
                 with st.spinner(f"🧠 STRUCTURING EXTENDED {current_action} DATASETS..."):
                     try:
-                        prompt_text = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
-                        You are the advanced content-enhancement engine for an offline retro text adventure game set in NYC called "NYC TRAIL PLANNER".
-                        Match the tone of a high-tech tactical terminal or cyberpunk operative deck.
-                        
-                        CRITICAL GEOGRAPHIC REALISM PROTOCOLS:
-                        - The target neighborhood sector is: {st.session_state.current_hood} (New York City).
-                        - Every mission generated MUST be physically true, possible, and logical for the actual geography, architecture, layout, and atmosphere of {st.session_state.current_hood}.
-                        - Do NOT hallucinate features that do not exist in this specific neighborhood (e.g., do not mention rivers/views if the neighborhood is landlocked, do not mention massive parks if it is entirely industrial concrete).
-                        
-                        CRITICAL ACTION ENFORCEMENT PROTOCOLS:
-                        - Current Strategy Component Action Category is: {current_action}. Your generation MUST strictly focus on this specific type of task.
-                        - If the category is EAT, the assignment MUST focus on dining, finding fish/vegetarian snacks, kitchen counters, or food markets.
-                        - If the category is WALK, the assignment MUST focus on walking, navigating blocks, footprints, and movement photography.
-                        - If the category is CHILL, the assignment MUST focus on sitting, resting, pausing, absorbing atmosphere, and stationary observation.
-                        - STRICT DIETARY BOUNDARY: If food is referenced, descriptions MUST be strictly pescatarian and COMPLETELY AVOCADO-FREE.
-                        - CRITICAL RESTRICTION: Do NOT name or recommend real commercial storefronts, specific shops, or chain brands. Keep spaces generalized to architectural textures.
-                        
-                        Output format must be exactly this strict raw text structure with no conversational chatter, asterisks, or markdown bold symbols:
-                        VIBE: [Text here]
-                        MISSION: [Text here]<|eot_id|><|start_header_id|>user<|end_header_id|>
-                        Enhance this setup for the specific sector terrain of '{st.session_state.current_hood}' and target strategy action '{current_action}'.
-                        BASE VIBE BLUEPRINT: {base_vibe}
-                        BASE MISSION BLUEPRINT: {base_mission}
-                        INSTRUCTIONS: Synthesize a localized text adventure entry. Ensure the resulting mission description completely fits the action modality of '{current_action}' and matches the real-world physical reality of {st.session_state.current_hood}.<|eot_id|><|start_header_id|>assistant<|end_header_id|>"""
-
+                        # Re-engineered chat-completions payload schema targeting Llama-3-8B
                         payload = {
-                            "inputs": prompt_text,
-                            "parameters": {"max_new_tokens": 250, "temperature": 0.5, "return_full_text": False}
+                            "model": "meta-llama/Meta-Llama-3-8B-Instruct",
+                            "messages": [
+                                {
+                                    "role": "system",
+                                    "content": f"""You are an advanced content-enhancement engine for a text-adventure game set in NYC. 
+                                    Match the tone of a high-tech tactical terminal or cyberpunk operative deck.
+                                    
+                                    CRITICAL GEOGRAPHIC REALISM PROTOCOLS:
+                                    - The target neighborhood sector is: {st.session_state.current_hood} (New York City).
+                                    - Every mission generated MUST be physically true, possible, and logical for the actual geography, architecture, layout, and atmosphere of {st.session_state.current_hood}.
+                                    
+                                    CRITICAL ACTION ENFORCEMENT PROTOCOLS:
+                                    - Current Strategy Component Action Category is: {current_action}. Your generation MUST strictly focus on this specific type of task.
+                                    - If the category is EAT, the assignment MUST focus on dining, finding fish/vegetarian snacks, kitchen counters, or food markets.
+                                    - If the category is WALK, the assignment MUST focus on walking, navigating blocks, footprints, and movement photography.
+                                    - If the category is CHILL, the assignment MUST focus on sitting, resting, pausing, absorbing atmosphere, and stationary observation.
+                                    - STRICT DIETARY BOUNDARY: If food is referenced, descriptions MUST be strictly pescatarian and COMPLETELY AVOCADO-FREE.
+                                    - CRITICAL RESTRICTION: Do NOT name or recommend real commercial storefronts, specific shops, or chain brands. Keep spaces generalized to architectural textures.
+                                    
+                                    Output format must be exactly this strict raw text structure with no conversational chatter, asterisks, or markdown bold symbols:
+                                    VIBE: [Text here]
+                                    MISSION: [Text here]"""
+                                },
+                                {
+                                    "role": "user",
+                                    "content": f"Enhance this configuration profile:\nNEIGHBORHOOD: {st.session_state.current_hood}\nACTION CATEGORY: {current_action}\nBASE VIBE BLUEPRINT: {base_vibe}\nBASE MISSION BLUEPRINT: {base_mission}"
+                                }
+                            ],
+                            "max_tokens": 250,
+                            "temperature": 0.5
                         }
                         
-                        response = requests.post(API_URL, headers=headers, json=payload, timeout=7)
+                        response = requests.post(API_URL, headers=headers, json=payload, timeout=8)
                         response.raise_for_status()
                         response_data = response.json()
                         
-                        output_text = response_data[0]['generated_text'] if isinstance(response_data, list) else response_data['generated_text']
-                        ai_response = output_text.split("<|start_header_id|>assistant<|end_header_id|>")[-1].strip()
+                        ai_response = response_data['choices'][0]['message']['content'].strip()
                         
                         for line in ai_response.split("\n"):
                             clean_line = line.replace("**", "").strip()
@@ -191,7 +214,7 @@ else:
                     except Exception as e:
                         use_ai = False
 
-            # Local generation backup runs if use_ai evaluates to False or if API crashes out above
+            # Local fallback generator steps in cleanly if use_ai is flagged False or if connection limits trip
             if not is_ai_generated:
                 prefix = random.choice(cyber_prefixes)
                 atmosphere = random.choice(cyber_atmospheres[current_action])
@@ -265,8 +288,9 @@ else:
             
             st.markdown("---")
             st.write("**🛡️ OPERATIONAL INTEGRITY SCORE:**")
-            st.write(f"- Running AI Cloud Core: **{'CONNECTED (HF SERVERLESS)' if ai_enabled else 'OFFLINE (FALLBACK EMBEDDED)'}**")
+            st.write(f"- Running AI Cloud Core: **{'CONNECTED (HF ULTRA ROUTER)' if ai_enabled else 'OFFLINE (FALLBACK EMBEDDED)'}**")
             st.write(f"- Active AI Generations: **{ai_count} modules loaded**")
+            st.write(f"- Unique Memory Tracking Pool Size: **{len(st.session_state.used_missions)} keys registered**")
             st.write(f"- Cloud Transmission Safety Block: **{'ENGAGED (SANDBOX OVERRIDE)' if demo_mode else 'LIVE TO LEDGER'}**")
 
         st.write("--------------------------------------------------")
@@ -275,7 +299,7 @@ else:
             st.rerun()
 
     # ==============================================================================
-    # STEP 5: MISSION DEBRIEF & CONDITIONAL DATA SAVING (DATA-OPTIMIZED RE-ROUTE)
+    # STEP 5: MISSION DEBRIEF & CONDITIONAL DATA SAVING
     # ==============================================================================
     if st.session_state.show_debrief:
         st.markdown("### == FIELD MISSION DEBRIEF ==")
@@ -287,7 +311,6 @@ else:
         
         new_rows = []
         
-        # FIX: Loop strictly through the active sequence ordered list, ignoring discarded multiselect values
         for index, label in enumerate(st.session_state.order_list):
             item = itinerary_map.get(label)
             if item:
@@ -302,7 +325,7 @@ else:
                 new_rows.append({
                     "Date": current_date,
                     "Neighborhood": st.session_state.current_hood,
-                    "Stop_Number": str(index + 1),  # Defensively saved as string token to eliminate Pandas concat casting errors
+                    "Stop_Number": str(index + 1),
                     "Mood": item['mood'],
                     "Vibe": item['vibe'],
                     "Mission": item['mission'],
@@ -322,7 +345,6 @@ else:
                 if conn is not None:
                     try:
                         existing_df = conn.read(ttl=0)
-                        # Normalize column definitions aggressively to handle mixed data schema limits
                         existing_df['Stop_Number'] = existing_df['Stop_Number'].astype(str)
                         fresh_df = pd.DataFrame(new_rows)
                         updated_df = pd.concat([existing_df, fresh_df], ignore_index=True)
@@ -344,4 +366,5 @@ else:
         st.session_state.order_list = []
         st.session_state.show_debrief = False
         st.session_state.active_trigger = None
+        st.session_state.used_missions = []
         st.rerun()
