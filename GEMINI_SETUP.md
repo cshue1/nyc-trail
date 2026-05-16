@@ -1,12 +1,21 @@
 # Gemini AI Setup Guide for NYC Trail Planner
 
+## ✅ 100% FREE - No Payment Required
+
+This app uses only **FREE-TIER Gemini models**. No credit card, no paid plans!
+
+- **Limits:** Up to 15 requests/minute, 1,500 requests/day
+- **Cost:** $0 (completely free)
+- **Perfect for:** Personal projects, testing, light usage
+
 ## Quick Setup
 
 ### Option 1: Using Environment Variables (.env file) - Easiest
 
-1. **Get your Gemini API Key**
+1. **Get your FREE Gemini API Key**
    - Go to [Google AI Studio](https://aistudio.google.com/app/apikey)
-   - Click "Create API Key"
+   - Click "Create API Key" 
+   - **No credit card needed** - completely free
    - Copy the key
 
 2. **Create a .env file**
@@ -48,13 +57,15 @@ When enabled, Gemini AI:
 - 🍽️ **Dietary compliance** - maintains pescatarian (no avocado) requirements for EAT missions
 - 📸 **Action focus** - ensures WALK missions are about movement/photography, EAT is about dining, CHILL is about resting
 
-## API Models
+## Free-Tier Models Used
 
-The app uses:
-- **Primary**: `gemini-1.5-flash` (via Google Generative AI SDK)
-- **Fallback**: `gemini-2.5-flash` (via REST API if SDK unavailable)
+The app uses these **FREE-TIER models** in order of preference:
 
-Both models are optimized for cost and speed.
+1. **gemini-2.0-flash** (newest, recommended)
+2. **gemini-1.5-flash** (fast, reliable fallback)
+3. **gemini-pro** (stable older model)
+
+All are completely **FREE** with the tier limits above.
 
 ## Troubleshooting
 
@@ -66,29 +77,39 @@ Both models are optimized for cost and speed.
 ### "Gemini initialization failed"
 - Check the Streamlit sidebar for error details
 - Verify `google-generativeai` is installed: `pip install google-generativeai`
-- Try using REST API instead by removing the SDK
+- Try updating: `pip install --upgrade google-generativeai`
 
 ### Missions not getting enhanced
 - Check sidebar status indicator
 - Gemini enhancement might fail due to rate limits - the app falls back to local generation
-- Wait a moment and try again
+- Wait a moment and try again (free tier: 15 requests/minute max)
 
-## API Cost
+### Rate Limited (Too Many Requests)
+- Free tier limits: 15 requests/minute, 1,500/day
+- The app automatically falls back to local generation when rate-limited
+- No cost - just use local generation for a while
 
-Google Generative AI has a **free tier**:
-- Up to 15 requests per minute
-- Up to 1,500 requests per day
-- Perfect for testing and personal use
+## Cost
 
-Paid plans available for higher usage.
+### Free Tier (Recommended for this app)
+- **Cost:** $0
+- **Limits:** 15 req/min, 1,500 req/day
+- **Models:** All models supported
+
+### Paid Tiers (Optional, not needed)
+- **Cost:** $0.075 per 1M input tokens, $0.30 per 1M output tokens
+- **For comparison:** This app uses ~200-300 tokens per enhancement
+- **Rough cost:** ~$0.00002 per enhancement (less than a fraction of a penny)
+
+**Bottom line:** Stick with the free tier! No payment needed.
 
 ## Features
 
 ✅ **Mission Enhancement** - AI-powered descriptive mission generation
 ✅ **Geographic Awareness** - Contextual missions for each NYC neighborhood  
 ✅ **Fallback Logic** - Works without API key (uses local generation)
-✅ **Error Handling** - Gracefully degrades if API is unavailable
-✅ **Caching** - Reduces API calls with smart caching
+✅ **Error Handling** - Gracefully degrades if API is unavailable or rate-limited
+✅ **Caching** - Reduces API calls with smart caching (1 hour TTL)
 
 ---
 

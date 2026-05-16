@@ -58,20 +58,32 @@ elif os.getenv("GEMINI_API_KEY"):
     gemini_api_key = os.getenv("GEMINI_API_KEY")
 
 # Initialize Gemini if API key is available and SDK is installed
+# Free tier models only (no paid plans required)
 if gemini_api_key and GEMINI_SDK_AVAILABLE:
     try:
         genai.configure(api_key=gemini_api_key)
-        gemini_client = genai.GenerativeModel("gemini-1.5-flash")
-        ai_enabled = True
-        st.sidebar.success("✅ Gemini API connected - Mission enhancement active")
+        # Try free-tier models in order: 2.0-flash, 1.5-flash, pro
+        try:
+            gemini_client = genai.GenerativeModel("gemini-2.0-flash")
+            ai_enabled = True
+            st.sidebar.success("✅ Gemini 2.0 Flash (Free) - Mission enhancement active")
+        except Exception:
+            try:
+                gemini_client = genai.GenerativeModel("gemini-1.5-flash")
+                ai_enabled = True
+                st.sidebar.success("✅ Gemini 1.5 Flash (Free) - Mission enhancement active")
+            except Exception:
+                gemini_client = genai.GenerativeModel("gemini-pro")
+                ai_enabled = True
+                st.sidebar.success("✅ Gemini Pro (Free) - Mission enhancement active")
     except Exception as e:
-        st.sidebar.warning(f"⚠️ Gemini initialization failed: {str(e)}")
+        st.sidebar.warning(f"⚠️ Gemini SDK initialization failed: {str(e)}")
 elif gemini_api_key and not GEMINI_SDK_AVAILABLE:
-    # Fallback to REST API if SDK not available
+    # Fallback to REST API if SDK not available (free tier models)
     API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_api_key}"
     headers = {"Content-Type": "application/json"}
     ai_enabled = True
-    st.sidebar.info("📡 Using Gemini REST API (SDK not installed)")
+    st.sidebar.info("📡 Using Gemini 1.5 Flash REST API (Free)")
 else:
     st.sidebar.info("ℹ️ Gemini API not configured - using local mission generation")
 
@@ -134,14 +146,18 @@ BASE MISSION BLUEPRINT: {base_mission}"""
     try:
         if gemini_client:
             # Use Google Generative AI SDK
-            response = gemini_client.generate_content(
-                [system_prompt, user_prompt],
-                generation_config=genai.types.GenerationConfig(
-                    temperature=0.4,
-                    max_output_tokens=250,
+            try:
+                response = gemini_client.generate_content(
+                    [system_prompt, user_prompt],
+                    generation_config={
+                        "temperature": 0.4,
+                        "max_output_tokens": 250,
+                    }
                 )
-            )
-            ai_response = response.text
+                ai_response = response.text
+            except Exception as sdk_error:
+                # Log SDK error and skip enhancement
+                return base_vibe, base_mission, False
         else:
             # Fallback to REST API
             payload = {
@@ -163,15 +179,9 @@ BASE MISSION BLUEPRINT: {base_mission}"""
             response_data = response.json()
             ai_response = response_data['candidates'][0]['content']['parts'][0]['text']
         
-        # Parse response
-        extracted_vibe = ""
-        extracted_mission = ""
-        for line in ai_response.split("\n"):
-            clean_line = line.replace("**", "").strip()
-            if clean_line.upper().startswith("VIBE:"):
-                extracted_vibe = clean_line[5:].strip()
-            elif clean_line.upper().startswith("MISSION:"):
-                extracted_mission = clean_line[8:].strip()
+        # Parse response using improved parser from missions module
+        from missions import parse_gemini_response
+        extracted_vibe, extracted_mission = parse_gemini_response(ai_response)
         
         if extracted_vibe and extracted_mission:
             return extracted_vibe, extracted_mission, True

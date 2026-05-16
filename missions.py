@@ -80,6 +80,7 @@ def select_base_mission(action_type: str, adventure_pool: Dict[str, Any], used_m
 def parse_gemini_response(ai_response: str) -> Tuple[str, str]:
     """
     Parse Gemini AI response to extract VIBE and MISSION.
+    Handles multiple response formats and edge cases.
     
     Args:
         ai_response: Raw text response from Gemini
@@ -90,11 +91,18 @@ def parse_gemini_response(ai_response: str) -> Tuple[str, str]:
     extracted_vibe = ""
     extracted_mission = ""
     
+    if not ai_response or not ai_response.strip():
+        return extracted_vibe, extracted_mission
+    
     for line in ai_response.split("\n"):
-        clean_line = line.replace("**", "").strip()
-        if clean_line.upper().startswith("VIBE:"):
+        clean_line = line.replace("**", "").replace("*", "").strip()
+        if not clean_line:
+            continue
+        
+        line_upper = clean_line.upper()
+        if line_upper.startswith("VIBE:"):
             extracted_vibe = clean_line[5:].strip()
-        elif clean_line.upper().startswith("MISSION:"):
+        elif line_upper.startswith("MISSION:"):
             extracted_mission = clean_line[8:].strip()
     
     return extracted_vibe, extracted_mission
