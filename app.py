@@ -62,28 +62,47 @@ elif os.getenv("GEMINI_API_KEY"):
 if gemini_api_key and GEMINI_SDK_AVAILABLE:
     try:
         genai.configure(api_key=gemini_api_key)
-        # Try free-tier models in order: 2.0-flash, 1.5-flash, pro
-        try:
-            gemini_client = genai.GenerativeModel("gemini-2.0-flash")
-            ai_enabled = True
-            st.sidebar.success("✅ Gemini 2.0 Flash (Free) - Mission enhancement active")
-        except Exception:
+        # Try free-tier models in order: pro (most available) -> 2.0-flash -> 1.5-flash
+        tried_models = []
+        for model_name in ["gemini-pro", "gemini-2.0-flash", "gemini-1.5-flash"]:
             try:
-                gemini_client = genai.GenerativeModel("gemini-1.5-flash")
+                gemini_client = genai.GenerativeModel(model_name)
                 ai_enabled = True
-                st.sidebar.success("✅ Gemini 1.5 Flash (Free) - Mission enhancement active")
-            except Exception:
-                gemini_client = genai.GenerativeModel("gemini-pro")
-                ai_enabled = True
-                st.sidebar.success("✅ Gemini Pro (Free) - Mission enhancement active")
+                st.sidebar.success(f"✅ {model_name} (Free) - Mission enhancement active")
+                break
+            except Exception as e:
+                tried_models.append(model_name)
+                continue
+        
+        if not ai_enabled:
+            st.sidebar.warning(f"⚠️ Tried models {tried_models} - none available. Using local generation.")
     except Exception as e:
         st.sidebar.warning(f"⚠️ Gemini SDK initialization failed: {str(e)}")
 elif gemini_api_key and not GEMINI_SDK_AVAILABLE:
     # Fallback to REST API if SDK not available (free tier models)
-    API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_api_key}"
-    headers = {"Content-Type": "application/json"}
-    ai_enabled = True
-    st.sidebar.info("📡 Using Gemini 1.5 Flash REST API (Free)")
+    # Try multiple endpoints to find which model works
+    rest_api_models = [
+        "gemini-pro",
+        "gemini-1.5-flash",
+        "gemini-2.0-flash"
+    ]
+    
+    for model in rest_api_models:
+        try:
+            API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/{model}:generateContent?key={gemini_api_key}"
+            headers = {"Content-Type": "application/json"}
+            # Test the API
+            test_payload = {"contents": [{"parts": [{"text": "test"}]}]}
+            test_response = requests.post(API_URL, headers=headers, json=test_payload, timeout=5)
+            if test_response.status_code == 200:
+                ai_enabled = True
+                st.sidebar.info(f"📡 Using {model} REST API (Free)")
+                break
+        except Exception:
+            continue
+    
+    if not ai_enabled:
+        st.sidebar.warning("⚠️ REST API models not available - using local generation")
 else:
     st.sidebar.info("ℹ️ Gemini API not configured - using local mission generation")
 
@@ -156,10 +175,31 @@ BASE MISSION BLUEPRINT: {base_mission}"""
                 )
                 ai_response = response.text
             except Exception as sdk_error:
-                # Log SDK error and skip enhancement
-                return base_vibe, base_mission, False
+                # SDK failed, try REST API if available
+                if 'API_URL' in globals():
+                    payload = {
+                        "contents": [{
+                            "parts": [{
+                                "text": f"{system_prompt}\n\n{user_prompt}"
+                            }]
+                        }],
+                        "generationConfig": {
+                            "temperature": 0.4,
+                            "maxOutputTokens": 250
+                        }
+                    }
+                    response = requests.post(API_URL, headers=headers, json=payload, timeout=8)
+                    if response.status_code != 200:
+                        return base_vibe, base_mission, False
+                    response_data = response.json()
+                    ai_response = response_data['candidates'][0]['content']['parts'][0]['text']
+                else:
+                    return base_vibe, base_mission, False
         else:
-            # Fallback to REST API
+            # Use REST API directly
+            if 'API_URL' not in globals():
+                return base_vibe, base_mission, False
+                
             payload = {
                 "contents": [{
                     "parts": [{
@@ -189,7 +229,7 @@ BASE MISSION BLUEPRINT: {base_mission}"""
             return base_vibe, base_mission, False
             
     except Exception as e:
-        st.warning(f"⚠️ Gemini enhancement failed: {str(e)}")
+        # Silently fail and use local generation - don't spam warnings
         return base_vibe, base_mission, False
 
 # ==============================================================================

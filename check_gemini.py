@@ -7,6 +7,7 @@ Run this script to test Gemini API connectivity and available models.
 import os
 import sys
 from dotenv import load_dotenv
+import requests
 
 # Load environment variables
 load_dotenv()
@@ -54,12 +55,12 @@ def check_gemini_availability():
         
         print(f"\n✅ Found {len(available_models)} available models\n")
         
-        # Try free-tier models only
-        print("🧪 Testing FREE-TIER models...\n")
+        # Try free-tier models with smart fallback
+        print("🧪 Testing FREE-TIER models (best to worst)...\n")
         test_models = [
-            "gemini-2.0-flash",      # Newest, free tier
-            "gemini-1.5-flash",      # Free tier, good backup
-            "gemini-pro"             # Older but stable, free tier
+            "gemini-pro",           # Most stable, widely available
+            "gemini-2.0-flash",     # Newest, free tier
+            "gemini-1.5-flash",     # Fast, free tier
         ]
         
         for model_name in test_models:
@@ -67,15 +68,32 @@ def check_gemini_availability():
                 model = genai.GenerativeModel(model_name)
                 response = model.generate_content("Say 'Hello'", stream=False)
                 if response.text:
-                    print(f"✅ {model_name}: WORKING")
+                    print(f"✅ {model_name}: WORKING (SDK)")
                 else:
                     print(f"⚠️  {model_name}: No response text")
             except Exception as e:
                 error_msg = str(e)
                 if "not found" in error_msg.lower():
-                    print(f"❌ {model_name}: Not available")
+                    print(f"❌ {model_name}: Not available (SDK)")
                 else:
                     print(f"⚠️  {model_name}: {error_msg[:50]}...")
+        
+        # Also test REST API for each model
+        print("\n🧪 Testing REST API endpoints...\n")
+        for model_name in test_models:
+            try:
+                rest_url = f"https://generativelanguage.googleapis.com/v1beta/models/{model_name}:generateContent?key={api_key}"
+                payload = {"contents": [{"parts": [{"text": "Hello"}]}]}
+                response = requests.post(rest_url, json=payload, timeout=5)
+                
+                if response.status_code == 200:
+                    print(f"✅ {model_name}: WORKING (REST API)")
+                elif response.status_code == 404:
+                    print(f"❌ {model_name}: Not found (REST API)")
+                else:
+                    print(f"⚠️  {model_name}: {response.status_code} (REST API)")
+            except Exception as e:
+                print(f"❌ {model_name}: Connection error")
         
         return True
         
@@ -101,15 +119,15 @@ def recommend_fix():
     print("   - Works great for this app!\n")
     
     print("3. Available Free Models (in order of preference):")
-    print("   ✅ gemini-2.0-flash (recommended - newest)")
-    print("   ✅ gemini-1.5-flash (good backup - free)")
-    print("   ✅ gemini-pro (stable fallback - free)\n")
+    print("   ✅ gemini-pro (most stable - recommended)")
+    print("   ✅ gemini-2.0-flash (newest - good option)")
+    print("   ✅ gemini-1.5-flash (fast - good backup)\n")
     
     print("4. Update google-generativeai package:")
     print("   python -m pip install --upgrade google-generativeai\n")
     
     print("5. For NYC Trail Planner:")
-    print("   - App tries 2.0-flash → 1.5-flash → pro")
+    print("   - App tries gemini-pro → gemini-2.0-flash → gemini-1.5-flash")
     print("   - All are FREE tier, no payment needed")
     print("   - Falls back to local generation if API is down\n")
 

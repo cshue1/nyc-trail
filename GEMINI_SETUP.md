@@ -61,11 +61,13 @@ When enabled, Gemini AI:
 
 The app uses these **FREE-TIER models** in order of preference:
 
-1. **gemini-2.0-flash** (newest, recommended)
-2. **gemini-1.5-flash** (fast, reliable fallback)
-3. **gemini-pro** (stable older model)
+1. **gemini-pro** (most stable, widely available)
+2. **gemini-2.0-flash** (newest)
+3. **gemini-1.5-flash** (fast, reliable fallback)
 
 All are completely **FREE** with the tier limits above.
+
+**Why gemini-pro first?** It's the most universally available free-tier model. If you have other models available, the app will automatically detect and use them.
 
 ## Troubleshooting
 
