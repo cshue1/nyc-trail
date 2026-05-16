@@ -1,6 +1,6 @@
 streamlit
 st-gsheets-connection
-google-generativeai
+google-genai
 python-dotenv
 pytest
 requests

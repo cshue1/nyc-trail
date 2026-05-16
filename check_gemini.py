@@ -24,13 +24,13 @@ def check_gemini_availability():
     print(f"✅ API Key found (length: {len(api_key)} chars)\n")
     
     try:
-        import google.generativeai as genai
+        import google.genai as genai
     except ImportError:
-        print("❌ google-generativeai package not installed")
-        print("   Install with: pip install google-generativeai")
+        print("❌ google.genai package not installed")
+        print("   Install with: pip install google-genai")
         return False
     
-    print("✅ google-generativeai package available\n")
+    print("✅ google.genai package available\n")
     
     try:
         genai.configure(api_key=api_key)
@@ -123,8 +123,8 @@ def recommend_fix():
     print("   ✅ gemini-2.0-flash (newest - good option)")
     print("   ✅ gemini-1.5-flash (fast - good backup)\n")
     
-    print("4. Update google-generativeai package:")
-    print("   python -m pip install --upgrade google-generativeai\n")
+    print("4. Install/Update google.genai package:")
+    print("   python -m pip install --upgrade google-genai\n")
     
     print("5. For NYC Trail Planner:")
     print("   - App tries gemini-pro → gemini-2.0-flash → gemini-1.5-flash")
