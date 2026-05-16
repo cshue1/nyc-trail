@@ -7,7 +7,7 @@ from datetime import datetime
 import requests
 import os
 from dotenv import load_dotenv
-import google.generativeai as genai
+import google.genai as genai
 
 # Load environment variables from .env if available
 load_dotenv()
