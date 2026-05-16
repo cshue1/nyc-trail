@@ -109,33 +109,37 @@ def trigger_action_callback(action_type):
     
     if ai_enabled:
         try:
-            system_instruction = f"""You are an advanced content-enhancement engine for a text-adventure game set in NYC. 
-            Match the tone of a high-tech tactical terminal or cyberpunk operative deck.
-            
-            CRITICAL GEOGRAPHIC REALISM PROTOCOLS:
-            - The target neighborhood sector is: {st.session_state.current_hood} (New York City).
-            - Every mission generated MUST be physically true, possible, and logical for the actual geography, architecture, layout, and atmosphere of {st.session_state.current_hood}.
-            
-            CRITICAL ACTION ENFORCEMENT PROTOCOLS:
-            - Current Strategy Component Action Category is: {action_type}. Your generation MUST strictly focus on this specific type of task.
-            - If the category is EAT, the assignment MUST focus on dining, finding fish/vegetarian snacks, kitchen counters, or food markets.
-            - If the category is WALK, the assignment MUST focus on walking, navigating blocks, footprints, and movement photography.
-            - If the category is CHILL, the assignment MUST focus on sitting, resting, pausing, absorbing atmosphere, and stationary observation.
-            - STRICT DIETARY BOUNDARY: If food is referenced, descriptions MUST be strictly pescatarian and COMPLETELY AVOCADO-FREE.
-            - CRITICAL RESTRICTION: Do NOT name or recommend real commercial storefronts, specific shops, or chain brands. Keep spaces generalized to architectural textures.
-            
-            Output format must be exactly this strict raw text structure with no conversational chatter, asterisks, or markdown bold symbols:
-            VIBE: [Text here]
-            MISSION: [Text here]"""
-
+            # Re-engineered payload mapping system instructions to Google's strict REST parameters
             payload = {
                 "contents": [{
                     "parts": [{
-                        "text": f"{system_instruction}\n\nEnhance this configuration profile:\nNEIGHBORHOOD: {st.session_state.current_hood}\nACTION CATEGORY: {action_type}\nBASE VIBE BLUEPRINT: {base_vibe}\nBASE MISSION BLUEPRINT: {base_mission}"
+                        "text": f"Enhance this configuration profile:\nNEIGHBORHOOD: {st.session_state.current_hood}\nACTION CATEGORY: {action_type}\nBASE VIBE BLUEPRINT: {base_vibe}\nBASE MISSION BLUEPRINT: {base_mission}"
                     }]
                 }],
+                "systemInstruction": {
+                    "parts": [{
+                        "text": f"""You are an advanced content-enhancement engine for a text-adventure game set in NYC. 
+                        Match the tone of a high-tech tactical terminal or cyberpunk operative deck.
+                        
+                        CRITICAL GEOGRAPHIC REALISM PROTOCOLS:
+                        - The target neighborhood sector is: {st.session_state.current_hood} (New York City).
+                        - Every mission generated MUST be physically true, possible, and logical for the actual geography, architecture, layout, and atmosphere of {st.session_state.current_hood}.
+                        
+                        CRITICAL ACTION ENFORCEMENT PROTOCOLS:
+                        - Current Strategy Component Action Category is: {action_type}. Your generation MUST strictly focus on this specific type of task.
+                        - If the category is EAT, the assignment MUST focus on dining, finding fish/vegetarian snacks, kitchen counters, or food markets.
+                        - If the category is WALK, the assignment MUST focus on walking, navigating blocks, footprints, and movement photography.
+                        - If the category is CHILL, the assignment MUST focus on sitting, resting, pausing, absorbing atmosphere, and stationary observation.
+                        - STRICT DIETARY BOUNDARY: If food is referenced, descriptions MUST be strictly pescatarian and COMPLETELY AVOCADO-FREE.
+                        - CRITICAL RESTRICTION: Do NOT name or recommend real commercial storefronts, specific shops, or chain brands. Keep spaces generalized to architectural textures.
+                        
+                        Output format must be exactly this strict raw text structure with no conversational chatter, asterisks, or markdown bold symbols:
+                        VIBE: [Text here]
+                        MISSION: [Text here]"""
+                    }]
+                },
                 "generationConfig": {
-                    "temperature": 0.4,
+                    "temperature": 0.5,
                     "maxOutputTokens": 250
                 }
             }
@@ -158,7 +162,7 @@ def trigger_action_callback(action_type):
                     vibe = extracted_vibe
                     mission = extracted_mission
                     is_ai_generated = True
-        except Exception:
+        except Exception as e:
             pass
 
     if not is_ai_generated:
