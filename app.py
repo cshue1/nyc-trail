@@ -5,6 +5,17 @@ from streamlit_gsheets import GSheetsConnection
 import pandas as pd
 from datetime import datetime
 import requests
+import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env if available
+load_dotenv()
+
+try:
+    import google.generativeai as genai
+    GEMINI_SDK_AVAILABLE = True
+except ImportError:
+    GEMINI_SDK_AVAILABLE = False
 
 # ==============================================================================
 # INITIALIZE APP ENGINE & SURFACE THEME CONFIGURATIONS
@@ -37,11 +48,32 @@ st.write("--------------------------------------------------")
 # INITIALIZE HIGH-SPEED GOOGLE GEMINI CORE LINK
 # ==============================================================================
 ai_enabled = False
+gemini_client = None
+
+# Try to get API key from streamlit secrets, environment variables, or .env file
+gemini_api_key = None
 if "GEMINI_API_KEY" in st.secrets:
-    GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
-    API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
+    gemini_api_key = st.secrets["GEMINI_API_KEY"]
+elif os.getenv("GEMINI_API_KEY"):
+    gemini_api_key = os.getenv("GEMINI_API_KEY")
+
+# Initialize Gemini if API key is available and SDK is installed
+if gemini_api_key and GEMINI_SDK_AVAILABLE:
+    try:
+        genai.configure(api_key=gemini_api_key)
+        gemini_client = genai.GenerativeModel("gemini-1.5-flash")
+        ai_enabled = True
+        st.sidebar.success("✅ Gemini API connected - Mission enhancement active")
+    except Exception as e:
+        st.sidebar.warning(f"⚠️ Gemini initialization failed: {str(e)}")
+elif gemini_api_key and not GEMINI_SDK_AVAILABLE:
+    # Fallback to REST API if SDK not available
+    API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={gemini_api_key}"
     headers = {"Content-Type": "application/json"}
     ai_enabled = True
+    st.sidebar.info("📡 Using Gemini REST API (SDK not installed)")
+else:
+    st.sidebar.info("ℹ️ Gemini API not configured - using local mission generation")
 
 # Load JSON Data rations
 try:
@@ -64,6 +96,91 @@ if "itinerary" not in st.session_state: st.session_state.itinerary = []
 if "order_list" not in st.session_state: st.session_state.order_list = []
 if "show_debrief" not in st.session_state: st.session_state.show_debrief = False
 if "used_missions" not in st.session_state: st.session_state.used_missions = []
+
+# ==============================================================================
+# 🤖 GEMINI MISSION ENHANCEMENT ENGINE
+# ==============================================================================
+@st.cache_data(ttl=3600)
+def enhance_mission_with_gemini(neighborhood, action_type, base_vibe, base_mission):
+    """
+    Enhance mission description using Gemini AI with geographic and action constraints.
+    Returns tuple of (vibe, mission, is_ai_generated)
+    """
+    system_prompt = f"""You are an advanced content-enhancement engine for a text-adventure game set in NYC. 
+Match the tone of a high-tech tactical terminal or cyberpunk operative deck.
+
+CRITICAL GEOGRAPHIC REALISM PROTOCOLS:
+- The target neighborhood sector is: {neighborhood} (New York City).
+- Every mission generated MUST be physically true, possible, and logical for the actual geography, architecture, layout, and atmosphere of {neighborhood}.
+
+CRITICAL ACTION ENFORCEMENT PROTOCOLS:
+- Current Strategy Component Action Category is: {action_type}. Your generation MUST strictly focus on this specific type of task.
+- If the category is EAT, the assignment MUST focus on dining, finding fish/vegetarian snacks, kitchen counters, or food markets.
+- If the category is WALK, the assignment MUST focus on walking, navigating blocks, footprints, and movement photography.
+- If the category is CHILL, the assignment MUST focus on sitting, resting, pausing, absorbing atmosphere, and stationary observation.
+- STRICT DIETARY BOUNDARY: If food is referenced, descriptions MUST be strictly pescatarian and COMPLETELY AVOCADO-FREE.
+- CRITICAL RESTRICTION: Do NOT name or recommend real commercial storefronts, specific shops, or chain brands. Keep spaces generalized to architectural textures.
+
+Output format must be exactly this strict raw text structure with no conversational chatter, asterisks, or markdown bold symbols:
+VIBE: [Text here]
+MISSION: [Text here]"""
+    
+    user_prompt = f"""Enhance this configuration profile:
+NEIGHBORHOOD: {neighborhood}
+ACTION CATEGORY: {action_type}
+BASE VIBE BLUEPRINT: {base_vibe}
+BASE MISSION BLUEPRINT: {base_mission}"""
+    
+    try:
+        if gemini_client:
+            # Use Google Generative AI SDK
+            response = gemini_client.generate_content(
+                [system_prompt, user_prompt],
+                generation_config=genai.types.GenerationConfig(
+                    temperature=0.4,
+                    max_output_tokens=250,
+                )
+            )
+            ai_response = response.text
+        else:
+            # Fallback to REST API
+            payload = {
+                "contents": [{
+                    "parts": [{
+                        "text": f"{system_prompt}\n\n{user_prompt}"
+                    }]
+                }],
+                "generationConfig": {
+                    "temperature": 0.4,
+                    "maxOutputTokens": 250
+                }
+            }
+            
+            response = requests.post(API_URL, headers=headers, json=payload, timeout=8)
+            if response.status_code != 200:
+                return base_vibe, base_mission, False
+            
+            response_data = response.json()
+            ai_response = response_data['candidates'][0]['content']['parts'][0]['text']
+        
+        # Parse response
+        extracted_vibe = ""
+        extracted_mission = ""
+        for line in ai_response.split("\n"):
+            clean_line = line.replace("**", "").strip()
+            if clean_line.upper().startswith("VIBE:"):
+                extracted_vibe = clean_line[5:].strip()
+            elif clean_line.upper().startswith("MISSION:"):
+                extracted_mission = clean_line[8:].strip()
+        
+        if extracted_vibe and extracted_mission:
+            return extracted_vibe, extracted_mission, True
+        else:
+            return base_vibe, base_mission, False
+            
+    except Exception as e:
+        st.warning(f"⚠️ Gemini enhancement failed: {str(e)}")
+        return base_vibe, base_mission, False
 
 # ==============================================================================
 # 🧠 PROTECTED STATE CALLBACK CORES (STRICT DICTIONARY ROUTING POOLS)
@@ -104,68 +221,21 @@ def trigger_action_callback(action_type):
 
     st.session_state.used_missions.append(base_mission)
     
-    vibe = base_vibe
-    mission = base_mission
-    is_ai_generated = False
-    
+    # Try to enhance mission with Gemini
     if ai_enabled:
-        try:
-            payload = {
-                "contents": [{
-                    "parts": [{
-                        "text": f"Enhance this configuration profile:\nNEIGHBORHOOD: {st.session_state.current_hood}\nACTION CATEGORY: {action_type}\nBASE VIBE BLUEPRINT: {base_vibe}\nBASE MISSION BLUEPRINT: {base_mission}"
-                    }]
-                }],
-                "systemInstruction": {
-                    "parts": [{
-                        "text": f"""You are an advanced content-enhancement engine for a text-adventure game set in NYC. 
-                        Match the tone of a high-tech tactical terminal or cyberpunk operative deck.
-                        
-                        CRITICAL GEOGRAPHIC REALISM PROTOCOLS:
-                        - The target neighborhood sector is: {st.session_state.current_hood} (New York City).
-                        - Every mission generated MUST be physically true, possible, and logical for the actual geography, architecture, layout, and atmosphere of {st.session_state.current_hood}.
-                        
-                        CRITICAL ACTION ENFORCEMENT PROTOCOLS:
-                        - Current Strategy Component Action Category is: {action_type}. Your generation MUST strictly focus on this specific type of task.
-                        - If the category is EAT, the assignment MUST focus on dining, finding fish/vegetarian snacks, kitchen counters, or food markets.
-                        - If the category is WALK, the assignment MUST focus on walking, navigating blocks, footprints, and movement photography.
-                        - If the category is CHILL, the assignment MUST focus on sitting, resting, pausing, absorbing atmosphere, and stationary observation.
-                        - STRICT DIETARY BOUNDARY: If food is referenced, descriptions MUST be strictly pescatarian and COMPLETELY AVOCADO-FREE.
-                        - CRITICAL RESTRICTION: Do NOT name or recommend real commercial storefronts, specific shops, or chain brands. Keep spaces generalized to architectural textures.
-                        
-                        Output format must be exactly this strict raw text structure with no conversational chatter, asterisks, or markdown bold symbols:
-                        VIBE: [Text here]
-                        MISSION: [Text here]"""
-                    }]
-                },
-                "generationConfig": {
-                    "temperature": 0.4,
-                    "maxOutputTokens": 250
-                }
-            }
-            
-            response = requests.post(API_URL, headers=headers, json=payload, timeout=6)
-            if response.status_code == 200:
-                response_data = response.json()
-                ai_response = response_data['candidates'][0]['content']['parts'][0]['text'].strip()
-                
-                extracted_vibe = ""
-                extracted_mission = ""
-                for line in ai_response.split("\n"):
-                    clean_line = line.replace("**", "").strip()
-                    if clean_line.upper().startswith("VIBE:"):
-                        extracted_vibe = clean_line[5:].strip()
-                    elif clean_line.upper().startswith("MISSION:"):
-                        extracted_mission = clean_line[8:].strip()
-                
-                if extracted_vibe and extracted_mission:
-                    vibe = extracted_vibe
-                    mission = extracted_mission
-                    is_ai_generated = True
-        except Exception as e:
-            st.error(f"⚠️ INTERNAL API DIAGNOSTIC EXCEPTION: {e}")
+        vibe, mission, is_ai_generated = enhance_mission_with_gemini(
+            st.session_state.current_hood, 
+            action_type, 
+            base_vibe, 
+            base_mission
+        )
+    else:
+        vibe = base_vibe
+        mission = base_mission
+        is_ai_generated = False
 
     if not is_ai_generated:
+        # Use fallback local generation
         prefix = random.choice(cyber_prefixes)
         atmosphere = random.choice(cyber_atmospheres[action_type])
         vibe = f"LOCAL FALLBACK // {base_vibe}"

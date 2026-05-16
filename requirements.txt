@@ -1,2 +1,6 @@
 streamlit
 st-gsheets-connection
+google-generativeai
+python-dotenv
+pytest
+requests
