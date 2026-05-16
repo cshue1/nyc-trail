@@ -1,0 +1,435 @@
+{
+  "neighborhoods": [
+    "MIDTOWN / GRAND CENTRAL",
+    "ROOSEVELT ISLAND",
+    "CHINATOWN",
+    "THE SOUTH STREET SEAPORT",
+    "KOREATOWN",
+    "DUMBO",
+    "CHELSEA",
+    "GREENPOINT",
+    "CONEY ISLAND",
+    "FLUSHING",
+    "THE WEST VILLAGE",
+    "UPPER WEST SIDE",
+    "RED HOOK",
+    "SUNSET PARK",
+    "JACKSON HEIGHTS",
+    "BRIGHTON BEACH",
+    "ASTORIA",
+    "BELMONT (ARTHUR AVENUE)",
+    "BEACON, NY (METRO-NORTH HUDSON LINE)",
+    "COLD SPRING, NY (METRO-NORTH HUDSON LINE)",
+    "GREENPORT, NY (LIRR RONKONKOMA BRANCH)",
+    "MONTAUK, NY (LIRR MONTAUK BRANCH)",
+    "TARRYTOWN, NY (METRO-NORTH HUDSON LINE)"
+  ],
+  "vibes": [
+    "THE HIGH-ENERGY SPREE (BUSY STREETS & BRIGHT LIGHTS)",
+    "THE HIDDEN COBBLESTONE LANE (OLD BRICK & HISTORIC ALLEYS)",
+    "THE WATERFRONT RETREAT (RIVER VIEWS & SKYLINE HORIZONS)",
+    "THE COZY INTENTIONAL DIM LIGHTS (SPEAKEASY & LIVE JAZZ VIBES)",
+    "THE URBAN WILDERNESS (PARKS & QUIET GREEN PATHS)",
+    "THE INDIE TRADING POST (THRIFTS & INDIE BOOKSTORES)",
+    "THE COBBLESTONES & CANDLELIT INDUSTRIAL BRICK",
+    "THE OBSERVATION DECK (PEOPLE-WATCHING BENCHES)",
+    "THE AVANT-GARDE DESIGN POST (STREET ART & SCENIC ARCHITECTURE)"
+  ],
+  "WALK": {
+    "missions": [
+      "THE LOW-ANGLE STRUT: Frame a dramatic low-profile shot tracking behind your partner, emphasizing the scale of the buildings meeting the sky grid above.",
+      "THE SYMMETRY SCOUT: Find a long, unbroken structural line—like a fence, railing, or row of trees—and snap a photo with your partner positioned precisely at the vanishing point dead center.",
+      "THE SILHOUETTE MATRIX: Find a bright storefront or window backlight. Position your partner directly in front of the source to capture a sharp, dark silhouette outline.",
+      "THE REFLECTION RECON: Track down a clean puddle, a sheet of glass, or a polished metal panel and snap a frame capturing your partner's reflection blending into the architecture background lines.",
+      "THE COMPRESSED DEPTH: Walk down a narrow path or passageway and take an ultra-wide angle portrait emphasizing the compressed lines of the walls framing your subject."
+    ]
+  },
+  "EAT": {
+    "missions": [
+      "THE STREET FOOD TRILOGY: Foraging On A Budget -> Pull out exactly $15 in cash. Your mission is to buy 2 to 3 small, individual snacks from local kiosks, food trucks, or bakeries to share without sitting down. Rank them to find the champion bite.",
+      "THE MYSTERY ORDER: Walk up to a counter without looking at a map beforehand. Ask the server for the single most popular small item or snack on their menu, no questions asked, and dive in completely blind.",
+      "THE SWEET TOOTH DUEL: Locate an independent bakery or dessert window. Each of you must select one small pastry or treat for the other person based entirely on what you think matches their mood profile right now.",
+      "THE WINDOW COUNTER PROTOCOL: Find a narrow ledge or window-facing standing bar to eat at. You are completely barred from using phones or tracking maps while consuming the meal; focus entirely on the street movement outside.",
+      "THE TEXTURE CRITIC: Order a simple, budget-friendly snack (like a slice of bread, a dumpling, or a taco). Grade its crunch, spice, and profile balance out loud like elite, hyper-serious restaurant inspectors."
+    ]
+  },
+  "CHILL": {
+    "missions": [
+      "THE 3-MINUTE AUDIO ARCHIVE: Find a quiet bench or ledge. Sit in total silence together for exactly 180 seconds, using your phone's voice memo app to record the ambient background sounds of the block as a time capsule.",
+      "THE DESIGN STUDY: Locate an architectural stoop or public courtyard. Pick out one specific design element—like an old iron gate pattern or a brick texture—and take three distinct macro close-up photos of it.",
+      "THE LANDMARK SPECULATION: Find an old vintage building or unusual sign. Spend two minutes inventing a completely fake, highly dramatic historical backstory about who owned it in 1920 and tell it to your partner with a straight face.",
+      "THE SHADOW COMPOSITION: Sit near an area where light passes through scaffolding or trees. Photograph the geometric shadows tracking across your partner's profile as the sun shifts through the structures.",
+      "THE PEOPLE-WATCHING SCORECARD: Find a busy bench block. Quietly watch the passersby and compete to see who can spot the most interesting outfit, coolest shoes, or most unusual book being carried within 5 minutes."
+    ]
+  },
+  "special_overrides": {
+    "MIDTOWN / GRAND CENTRAL": {
+      "packages": [
+        {
+          "vibe": "THE HIDDEN COBBLESTONE LANE (OLD BRICK & HISTORIC ALLEYS)",
+          "missions": [
+            "THE SECRET WHISPERER: Regional Quest -> Go to the Grand Central Whispering Gallery (the acoustic archway right outside the Oyster Bar). Stand on exact opposite diagonal corners, face the stone walls, and whisper a secret directly into the corner—your voice will travel perfectly through the ceiling."
+          ]
+        },
+        {
+          "vibe": "THE AVANT-GARDE DESIGN POST (STREET ART & SCENIC ARCHITECTURE)",
+          "missions": [
+            "THE SKYLINE COMPASS: Terminal Geometry -> Find the center of the main concourse under the zodiac ceiling. Find a clean framing angle to photograph your partner looking up at the glass windows while capturing the moving blur of commuters around them."
+          ]
+        }
+      ]
+    },
+    "ROOSEVELT ISLAND": {
+      "packages": [
+        {
+          "vibe": "THE WATERFRONT RETREAT (RIVER VIEWS & SKYLINE HORIZONS)",
+          "missions": [
+            "THE AIRBORNE SCOUT: Speed Duel -> Board the Roosevelt Island Tram using your phone tap. Look out the window silently during the crossing and compete to see who can spot and photograph the most unusual object visible on a Manhattan rooftop below."
+          ]
+        },
+        {
+          "vibe": "THE URBAN WILDERNESS (PARKS & QUIET GREEN PATHS)",
+          "missions": [
+            "THE RUIN ARCHIVE: Silent Memorial -> Walk south towards the historic Smallpox Hospital ruins. Frame a dramatic, high-contrast monochrome portrait of your partner with the decaying stone structures juxtaposed against the hyper-modern skyline behind them."
+          ]
+        }
+      ]
+    },
+    "CHINATOWN": {
+      "packages": [
+        {
+          "vibe": "THE HIGH-ENERGY SPREE (BUSY STREETS & BRIGHT LIGHTS)",
+          "missions": [
+            "THE EXOTIC FLAVOR DUEL: Palate Test -> Head to a local Chinatown ice cream shop or bakery walk-up window. You must order a scoop or treat for each other, specifically choosing the most adventurous flavor on the menu board."
+          ]
+        },
+        {
+          "vibe": "THE BUSY URBAN FORAGING & STREET SCENTS",
+          "missions": [
+            "THE NARROW ALLEYWAY RECON: Hidden Perspective -> Scout out one of Chinatown's historic curved streets (like Doyers or Pell Street). Stand at the bend and take a portrait emphasizing the compressed, neon-lit storefront text framing your partner."
+          ]
+        }
+      ]
+    },
+    "THE SOUTH STREET SEAPORT": {
+      "packages": [
+        {
+          "vibe": "THE HIDDEN COBBLESTONE LANE (OLD BRICK & HISTORIC ALLEYS)",
+          "missions": [
+            "THE MARITIME TALE: Storyteller Quest -> Walk down to Pier 17 to look at the historic tall ships. Pick one boat and quietly spend 60 seconds telling your partner an epic, completely made-up story about how you two were rival pirate captains aboard it in a past life."
+          ]
+        },
+        {
+          "vibe": "THE WATERFRONT RETREAT (RIVER VIEWS & SKYLINE HORIZONS)",
+          "missions": [
+            "THE BOARDWALK PATTERN HUNT: Line Composition -> Walk out onto the wooden planks along the pier. Capture a clean geometric photo looking straight down at your partner's feet tracking across the parallel lines of the boardwalk planks."
+          ]
+        }
+      ]
+    },
+    "KOREATOWN": {
+      "packages": [
+        {
+          "vibe": "THE HIGH-ENERGY CULINARY MATRIX",
+          "missions": [
+            "THE SHARED-PLATE PROTOCOL: Menu Challenge -> Find a lively modern Korean spot or a place for shared plates. You must successfully navigate the menu and order at least three savory plates to split that adhere strictly to your favorite eating habits (like keeping it entirely pescatarian and completely avocado-free!)."
+          ]
+        },
+        {
+          "vibe": "THE HIGH-ENERGY SPREE (BUSY STREETS & BRIGHT LIGHTS)",
+          "missions": [
+            "THE VERTICAL GRID CHASE: Neon Elevation -> Look straight up at the multi-layered vertical signs hanging over the block. Find a perspective where you can frame a close-up portrait of your partner illuminated entirely by the ambient colorful glow of a second-story window display."
+          ]
+        }
+      ]
+    },
+    "DUMBO": {
+      "packages": [
+        {
+          "vibe": "THE WATERFRONT RETREAT (RIVER VIEWS & SKYLINE HORIZONS)",
+          "missions": [
+            "THE COBBLESTONE PAPARAZZI: Framing Challenge -> Walk to the famous intersection of Water Street and Washington Street. One of you must crouch all the way down to the cobblestones to snap a picture of the other, perfectly framing them inside the legs of the Manhattan Bridge in the background."
+          ]
+        },
+        {
+          "vibe": "THE COBBLESTONES & CANDLELIT INDUSTRIAL BRICK",
+          "missions": [
+            "THE STEEL IMPACT SENSORY MATRIX: Textural Capture -> Walk right up to the massive brick base of the Brooklyn Bridge anchorages. Photograph a details-only macro shot of the absolute sharpest point where the historical red brick meets the cold industrial iron framework cabling."
+          ]
+        }
+      ]
+    },
+    "CHELSEA": {
+      "packages": [
+        {
+          "vibe": "THE AVANT-GARDE DESIGN POST (STREET ART & SCENIC ARCHITECTURE)",
+          "missions": [
+            "THE GLASS GRID REFLECTION: Geometry Sync -> Walk through the West Chelsea gallery blocks. Find a clean, massive pane of reflective glass outside a gallery building and compose a shot where the modern structural beams line up perfectly with your partner's profile."
+          ]
+        },
+        {
+          "vibe": "THE OBSERVATION DECK (PEOPLE-WATCHING BENCHES)",
+          "missions": [
+            "THE HIGH LINE TRAILBLAZER: Shadow Frame -> Go up onto the High Line elevated park. Find a quiet, structural alcove or a cool viewing steel platform and capture a cinematic silhouette profile photo of each other framed by the industrial architecture lines."
+          ]
+        }
+      ]
+    },
+    "GREENPOINT": {
+      "packages": [
+        {
+          "vibe": "THE COZY INTENTIONAL DIM LIGHTS (SPEAKEASY & LIVE JAZZ VIBES)",
+          "missions": [
+            "THE ALBUM SOUNDTRACK DUEL: Record Store Hunt -> Duck away from the busy avenues and find a local indie record shop or vintage store. You have exactly 7 minutes to quietly dig through the crates and find one vinyl album cover art piece that perfectly matches your partner's energy profile."
+          ]
+        },
+        {
+          "vibe": "THE COBBLESTONES & CANDLELIT INDUSTRIAL BRICK",
+          "missions": [
+            "THE WAREHOUSE BOUNDARY STRUT: Industrial Backdrop -> Wander down towards the quiet manufacturing docks on the western edge. Take an ultra-wide angle portrait of your partner walking alongside a weathered, un-renovated industrial brick factory wall."
+          ]
+        }
+      ]
+    },
+    "CONEY ISLAND": {
+      "packages": [
+        {
+          "vibe": "THE OLD-SCHOOL RETRO ARCADE (ARCADE & BOARD GAMES)",
+          "missions": [
+            "THE BOARDWALK ARCADE SHOWDOWN: High Stakes Duel -> Head into a seaside arcade on the boardwalk. Challenge your partner to a single high-stakes game of Skee-Ball or an arcade classic. Whoever gets the lower score pays for a sweet treat at the next stand."
+          ]
+        },
+        {
+          "vibe": "THE WATERFRONT RETREAT (RIVER VIEWS & SKYLINE HORIZONS)",
+          "missions": [
+            "THE COASTLINE DEPTH TEST: Vanishing Point -> Walk out onto the long wooden pier stretching over the Atlantic. Stand at the very beginning and photograph your partner walking away from you down the center line, creating a deep dramatic vanishing point out over the water."
+          ]
+        }
+      ]
+    },
+    "FLUSHING": {
+      "packages": [
+        {
+          "vibe": "THE FORAGING CRAWL & STREET FOOD HUNT",
+          "missions": [
+            "THE BLIND DUMPLING SAMPLER: Food Discovery -> Navigate your way into a local Flushing basement food court or mall crawl. Buy a steamer basket of dumplings or a street snack that is entirely mysterious and new to your palates, and dive in completely blind."
+          ]
+        },
+        {
+          "vibe": "THE HIGH-ENERGY CULINARY MATRIX",
+          "missions": [
+            "THE CHROMA GRID HUNT: Neon Packaging -> Duck into an international grocery aisle. Find the single item with the brightest, most abstract graphic design scheme on its box. Take a quick, highly saturated close-up product-style shot of it in your hands."
+          ]
+        }
+      ]
+    },
+    "THE WEST VILLAGE": {
+      "packages": [
+        {
+          "vibe": "THE HIDDEN COBBLESTONE LANE (OLD BRICK & HISTORIC ALLEYS)",
+          "missions": [
+            "THE NARROWEST HOUSE CHRONICLES: Hidden Landmark -> Track down 75 1/2 Bedford Street (the absolute narrowest house in New York City). Take turns stretching out your arms to see if you can touch both edges of the property line at the same time, then whisper a cozy story."
+          ]
+        },
+        {
+          "vibe": "THE COZY INTENTIONAL DIM LIGHTS (SPEAKEASY & LIVE JAZZ VIBES)",
+          "missions": [
+            "THE ANGLE OVERRIDE: Curved Brick Walk -> Find one of the neighborhood's famous three-way intersections or blind curves. Hide around the corner and snapshot your partner the exact microsecond they round the brick bend into your view."
+          ]
+        }
+      ]
+    },
+    "UPPER WEST SIDE": {
+      "packages": [
+        {
+          "vibe": "THE OBSERVATION DECK (PEOPLE-WATCHING BENCHES)",
+          "missions": [
+            "THE MONUMENTAL CONSPIRACY: Creative Pitch -> Walk over to the steps of the American Museum of Natural History. Select a giant statue, column, or archway, and whisper an outrageous, completely straight-faced conspiracy theory to your partner about how it was built."
+          ]
+        },
+        {
+          "vibe": "THE AVANT-GARDE DESIGN POST (STREET ART & SCENIC ARCHITECTURE)",
+          "missions": [
+            "THE TOWNHOUSE FAÇADE ARCHIVE: Window Tracking -> Wander a quiet residential block between West End and Columbus. Spot a row of classic brownstones and take a highly organized, grid-style photo framing just the repetitive design of the old stone stoops."
+          ]
+        }
+      ]
+    },
+    "RED HOOK": {
+      "packages": [
+        {
+          "vibe": "THE HIGH-ENERGY CULINARY MATRIX",
+          "missions": [
+            "THE TRAIL'S END OUTPOST: Maritime Foraging -> Head all the way down to the industrial piers or a seaside bakery. You are completely forbidden from ordering water or coffee; your refreshments must consist entirely of local drafts or fresh, tart key lime treats right by the water's edge."
+          ]
+        },
+        {
+          "vibe": "THE WATERFRONT RETREAT (RIVER VIEWS & SKYLINE HORIZONS)",
+          "missions": [
+            "THE DISTANT HORIZON CRITIC: Statue Tracker -> Walk to the edge of Valentino Pier. Look across the shipping channels to spot the distant Statue of Liberty. Frame a creative minimalist portrait where your partner blocks out the entire harbor except for that small green icon."
+          ]
+        }
+      ]
+    },
+    "SUNSET PARK": {
+      "packages": [
+        {
+          "vibe": "THE HIGH-ENERGY SPREE (BUSY STREETS & BRIGHT LIGHTS)",
+          "missions": [
+            "THE INDUSTRIAL TACO CRITIC: Outer Borough Fuel Quest -> Take the N or R train down to Sunset Park. Head to a local taco truck or small counter joint under the shadow of the Gowanus Expressway architecture. Order options to share on a quiet street-side ledge while capturing high-contrast geometric structural shadows."
+          ]
+        },
+        {
+          "vibe": "THE RAYS OF LIGHT WEAVING THROUGH SCAFFOLDING",
+          "missions": [
+            "THE HILLTOP SKYLINE SCOUT: Elevation Point -> Ascend to the highest crest of the actual park. Find a bench and look down over the grid of townhouses towards the harbor and Manhattan skyline. Take a beautifully layered wide landscape framing your partner sitting peacefully on the hill."
+          ]
+        }
+      ]
+    },
+    "JACKSON HEIGHTS": {
+      "packages": [
+        {
+          "vibe": "THE VIBRANT CHAOS OF A MULTICULTURAL SECTOR",
+          "missions": [
+            "THE ELEVATED METRO SENSORY HOP: Train Line Foraging -> Ride the 7 train out to Jackson Heights and stand under the massive elevated track grid. Track down an unassuming bakery or street cart window. Buy a snack you've never tried before and eat it on a public plaza bench."
+          ]
+        },
+        {
+          "vibe": "THE RAYS OF LIGHT WEAVING THROUGH SCAFFOLDING",
+          "missions": [
+            "THE CHROME PATTERN CRAWL: Structural Steel -> Walk directly underneath the steel beams supporting the elevated train structure. Capture a geometric photo tracking straight up into the intersecting metal rivets, capturing the under-bridge shadow matrix."
+          ]
+        }
+      ]
+    },
+    "BRIGHTON BEACH": {
+      "packages": [
+        {
+          "vibe": "THE WATERFRONT RETREAT (RIVER VIEWS & SKYLINE HORIZONS)",
+          "missions": [
+            "THE BOARDWALK BAKERY RECON: Ocean-Side Carb Hunt -> Head down to Brighton Beach. Skip the formal restaurants entirely. Find a quiet, old-school bakery case window. Purchase a classic pastry or savory bread option, walk directly out onto the wooden boardwalk planks, and share it silently."
+          ]
+        },
+        {
+          "vibe": "THE BUSY URBAN FORAGING & STREET SCENTS",
+          "missions": [
+            "THE SEA RAILING PORTRAIT: Ocean Horizon -> Position your partner leaning against the continuous metal railing running along the edge of the sand. Snap a wide-angle shot looking down the line of the railing, utilizing its clean line to guide the eye across the frame."
+          ]
+        }
+      ]
+    },
+    "ASTORIA": {
+      "packages": [
+        {
+          "vibe": "THE FORAGING CRAWL & STREET FOOD HUNT",
+          "missions": [
+            "THE BAKERY WILDCARD MATRIX: Hidden Pastry Hunt -> Head deep into Astoria. Skip the main strips and look for a local Mediterranean, Egyptian, or Greek bakery counter. Spend under $5 to order an unknown sweet pastry to share outside on a quiet bench without digital mapping assistance."
+          ]
+        },
+        {
+          "vibe": "THE LOCAL INSIDER TRADING POST VIBES",
+          "missions": [
+            "THE PARK BRIDGE MASS: Infrastructure Scale -> Head down to Astoria Park right beneath the massive sweeping concrete arch base of the Hell Gate Bridge. Photograph your partner looking up from the path to fully highlight the absolute engineering scale of the tracks above."
+          ]
+        }
+      ]
+    },
+    "BELMONT (ARTHUR AVENUE)": {
+      "packages": [
+        {
+          "vibe": "THE HIDDEN COBBLESTONE LANE (OLD BRICK & HISTORIC ALLEYS)",
+          "missions": [
+            "THE COVERED MARKET EXPEDITION: Bronx Core Foraging -> Travel up to the Arthur Avenue Retail Market. Find a quiet back corner table or standing space inside. Buy a plain slice of cheese or fresh bread from a counter, grade its texture profile like food judges, then take window portraits."
+          ]
+        },
+        {
+          "vibe": "THE BUSY URBAN FORAGING & STREET SCENTS",
+          "missions": [
+            "THE VINTAGE STOREFRONT SCOUT: Classic Lettering -> Walk past the historic old-school butchers and cheese store facades. Spot a storefront featuring striking hand-painted vintage typography on the glass or stone sign, and use it to frame a clean, classic street portrait."
+          ]
+        }
+      ]
+    },
+    "BEACON, NY (METRO-NORTH HUDSON LINE)": {
+      "packages": [
+        {
+          "vibe": "THE AVANT-GARDE DESIGN POST (STREET ART & SCENIC ARCHITECTURE)",
+          "missions": [
+            "THE SCALE MASTERPIECE: Landscape Day-Trip -> Board the Metro-North Hudson Line from Grand Central. Head to Dia Beacon. Take an awesome size-contrast photo: frame your partner standing in front of one of the massive industrial art installations at a super wide angle so they look tiny."
+          ]
+        },
+        {
+          "vibe": "THE OBSERVATION DECK (PEOPLE-WATCHING BENCHES)",
+          "missions": [
+            "THE FACTORY LIGHT TRACKER: Industrial Windows -> Inside the galleries, locate one of the historic factory sawtooth skylights casting diagonal shafts of light on the wooden floor. Photograph your partner stepping directly through a single column of light."
+          ]
+        }
+      ]
+    },
+    "COLD SPRING, NY (METRO-NORTH HUDSON LINE)": {
+      "packages": [
+        {
+          "vibe": "THE INDIE TRADING POST (THRIFTS & INDIE BOOKSTORES)",
+          "missions": [
+            "THE TIMESHIFT ARTIFACT: Main Street Day-Trip -> Take the train up to the charming town of Cold Spring. Head to Main Street and explore the antique shops. Capture a moody portrait by shooting from the sidewalk through a store window, so the vintage items blend with reflections."
+          ]
+        },
+        {
+          "vibe": "THE URBAN WILDERNESS (PARKS & QUIET GREEN PATHS)",
+          "missions": [
+            "THE MOUNTAIN OVERLOOK PORTRAIT: Hudson Fjord -> Walk down to the riverfront park bandshell. Frame a portrait of your partner sitting quietly on the stone edge with the massive dramatic cliffs of Storm King Mountain looming directly across the water."
+          ]
+        }
+      ]
+    },
+    "GREENPORT, NY (LIRR RONKONKOMA BRANCH)": {
+      "packages": [
+        {
+          "vibe": "THE WATERFRONT RETREAT (RIVER VIEWS & SKYLINE HORIZONS)",
+          "missions": [
+            "THE MARITIME FORAGING SPREE: Seaside Day-Trip -> Ride the LIRR out to its final stop on the North Fork. Find a classic raw bar or pier shack right on the harbor. Put away your phone maps, wander the historic village streets, and blind-order a fresh dish featuring local oysters."
+          ]
+        },
+        {
+          "vibe": "THE LOCAL INSIDER TRADING POST VIBES",
+          "missions": [
+            "THE BOATHOUSE GRAPHIC DESIGN: Weathered Paint -> Walk the boat storage docks. Find a hull, anchor layout, or old shed with paint peeling beautifully from the sea salt. Take a highly stylized close-up texture shot of the colors interacting."
+          ]
+        }
+      ]
+    },
+    "MONTAUK, NY (LIRR MONTAUK BRANCH)": {
+      "packages": [
+        {
+          "vibe": "THE URBAN WILDERNESS (PARKS & QUIET GREEN PATHS)",
+          "missions": [
+            "THE LAST LANDING FORAGE: Ocean-Edge Day-Trip -> Ride the LIRR all the way out to the very end of Long Island. Walk out along the dramatic, wind-swept ocean cliffs. Capture a powerful black-and-white portrait of your partner with the wild sea spray drifting right behind them."
+          ]
+        },
+        {
+          "vibe": "THE WATERFRONT RETREAT (RIVER VIEWS & SKYLINE HORIZONS)",
+          "missions": [
+            "THE DRIFTWOOD MINIMALIST: Coastline Frame -> Walk down onto the rocky sand beaches. Find a unique piece of weathered wood or a sea-worn boulder and take a clean, minimalist landscape shot with your partner placed far off along the third-line grid."
+          ]
+        }
+      ]
+    },
+    "TARRYTOWN, NY (METRO-NORTH HUDSON LINE)": {
+      "packages": [
+        {
+          "vibe": "THE HIDDEN COBBLESTONE LANE (OLD BRICK & HISTORIC ALLEYS)",
+          "missions": [
+            "THE MYTHICAL ENCOUNTER: Historic Valley Day-Trip -> Take a quick express train up to Tarrytown. Wander along the old aqueduct footpath or towards the Sleepy Hollow gates. Stand near the old stone arches and spend three minutes recording the eerie natural echoes before grabbing a bite."
+          ]
+        },
+        {
+          "vibe": "THE URBAN WILDERNESS (PARKS & QUIET GREEN PATHS)",
+          "missions": [
+            "THE BRICK MANOR STOOP: Gilded Framing -> Wander past the historic old architecture properties near Main Street. Spot a heavily detailed vintage entryway or iron fence post and photograph a tight portrait framing your partner looking out through the gates."
+          ]
+        }
+      ]
+    }
+  }
+}
