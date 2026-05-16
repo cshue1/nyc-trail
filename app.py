@@ -5,89 +5,20 @@ from streamlit_gsheets import GSheetsConnection
 import pandas as pd
 from datetime import datetime
 
+# ==============================================================================
+# INITIALIZE APP ENGINE & SURFACE THEME CONFIGURATIONS
+# ==============================================================================
 st.set_page_config(page_title="NYC TRAIL PLANNER", page_icon="🤠", layout="centered")
 
-# ==============================================================================
-# RETRO CYBERPUNK TERMINAL CSS THEME OVERRIDES (WITH SECURITY BYPASS APPLIED)
-# ==============================================================================
-st.markdown("""
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
-    <style>
-    html, body, [data-testid="stAppViewContainer"], .main {
-        background-color: #000000 !important;
-        color: #33ff33 !important;
-        font-family: 'VT323', monospace !important;
-        font-size: 24px;
-    }
-    h1, h2, h3, h4, h5, h6, p, span, label { color: #33ff33 !important; font-family: 'VT323', monospace !important; }
-    h1 { font-size: 48px !important; text-align: center; text-transform: uppercase; }
-    h3 { font-size: 32px !important; text-transform: uppercase; }
-    
-    .stButton>button, div[data-testid="stPopover"] > button {
-        width: 100%;
-        background-color: #000000 !important;
-        color: #33ff33 !important;
-        font-family: 'VT323', monospace !important;
-        font-size: 26px !important;
-        border: 3px dashed #33ff33 !important;
-        border-radius: 0px !important;
-        padding: 10px !important;
-        margin-bottom: 10px;
-        text-transform: uppercase;
-    }
-    .stButton>button:hover, div[data-testid="stPopover"] > button:hover { 
-        background-color: #33ff33 !important; 
-        color: #000000 !important; 
-    }
-    
-    div[data-testid="stPopoverBody"] {
-        background-color: #111111 !important;
-        border: 3px solid #33ff33 !important;
-        padding: 15px !important;
-    }
-    
-    div[data-testid="stExpander"] {
-        background-color: #000000 !important;
-        border: 3px solid #33ff33 !important;
-        border-radius: 0px !important;
-        margin-top: 15px;
-    }
-    
-    .stTextInput>div>div>input, .stTextArea>div>div>textarea {
-        background-color: #111111 !important;
-        color: #33ff33 !important;
-        border: 2px dashed #33ff33 !important;
-        font-family: 'VT323', monospace !important;
-        font-size: 22px !important;
-    }
-    
-    .adventure-box { background-color: #000000; border: 4px double #33ff33; padding: 15px; margin-top: 15px; line-height: 1.4; }
-    .override-box { background-color: #000000; border: 4px double #ff3333; padding: 15px; margin-top: 15px; line-height: 1.4; color: #ff3333 !important; }
-    .demo-box { background-color: #000000; border: 4px double #ffff33; padding: 15px; margin-top: 15px; line-height: 1.4; color: #ffff33 !important; }
-    .amplified-box { background-color: #000000; border: 4px double #00ffff; padding: 15px; margin-top: 15px; line-height: 1.4; color: #00ffff !important; }
-    
-    .itinerary-header { font-size: 36px !important; margin-top: 30px; text-decoration: underline; text-transform: uppercase; }
-    .divider { border-top: 3px dashed #33ff33; margin: 10px 0; }
-    .divider-red { border-top: 3px dashed #ff3333; margin: 10px 0; }
-    .divider-yellow { border-top: 3px dashed #ffff33; margin: 10px 0; }
-    .divider-cyan { border-top: 3px dashed #00ffff; margin: 10px 0; }
-    
-    div[data-baseweb="select"] { background-color: #000000 !important; border: 2px dashed #33ff33 !important; }
-    div[role="button"] { background-color: #111111 !important; color: #33ff33 !important; border: 1px solid #33ff33 !important; }
-    </style>
-""", unsafe_allow_html=True)
-
-st.markdown("<h1>== NYC TRAIL PLANNER v1 ==</h1>", unsafe_allow_html=True)
+st.title("== NYC TRAIL PLANNER v7.2 ==")
 
 # ==============================================================================
-# SYSTEM CONTROL HEADER
+# DASHBOARD SYSTEM CONTROL HEADER
 # ==============================================================================
 col_info, col_toggle = st.columns([2, 1])
 with col_info:
     with st.popover("ℹ️ VIEW SYSTEM WORKFLOW"):
-        st.markdown("<h3 style='color: #33ff33 !important;'>== AUTOMATED BACKEND LOOP ==</h3>", unsafe_allow_html=True)
+        st.markdown("### == AUTOMATED BACKEND LOOP ==")
         st.write("🤖 **1. STACK:** Drop random location coordinates and load objective matrices.")
         st.write("🔒 **2. DETERMINISTIC CORE:** Runs 100% locally with zero external network execution data risk.")
         st.write("📸 **3. CAPTURE:** Document field entries natively on your camera roll.")
@@ -97,7 +28,7 @@ with col_toggle:
     demo_mode = st.toggle("🛠️ DEMO MODE", value=False, help="Blocks Google Sheet streaming updates to simulate sandboxed logs.")
 
 if demo_mode:
-    st.markdown("<p style='color: #ffff33 !important; text-align: center; font-weight: bold;'>⚠️ SANDBOX MATRIX ENGAGED: TRANSMISSIONS DEACTIVATED ⚠️</p>", unsafe_allow_html=True)
+    st.markdown("**⚠️ SANDBOX MATRIX ENGAGED: TRANSMISSIONS DEACTIVATED ⚠️**")
 
 st.write("--------------------------------------------------")
 
@@ -140,7 +71,7 @@ if not st.session_state.started:
             st.session_state.show_debrief = False
             st.rerun()
 else:
-    st.markdown(f"<h3>[DROPPED SECTOR]: {st.session_state.current_hood}</h3>", unsafe_allow_html=True)
+    st.markdown(f"### [DROPPED SECTOR]: {st.session_state.current_hood}")
     
     overrides = adventure_pool.get("special_overrides", {})
     has_override = st.session_state.current_hood in overrides and "packages" in overrides[st.session_state.current_hood]
@@ -218,36 +149,28 @@ else:
         )
         st.session_state.order_list = sorted_order
 
-    # --- STEP 4: DISPLAY ADAPTIVE BLOCK MATRIX ---
+    # --- STEP 4: DISPLAY NATIVE ADAPTIVE BLOCK MATRIX ---
     if st.session_state.itinerary and not st.session_state.show_debrief:
-        st.markdown("<p class='itinerary-header'>== TARGET DAY ITINERARY ==</p>", unsafe_allow_html=True)
+        st.markdown("### == TARGET DAY ITINERARY == ")
         itinerary_map = {item["label"]: item for item in st.session_state.itinerary}
         
         for index, label in enumerate(st.session_state.order_list):
             item = itinerary_map.get(label)
             if item:
+                # Assign structural alert prefixes based on system attributes
                 if demo_mode:
-                    box_class, div_class, alert_prefix, txt_color = "demo-box", "divider-yellow", " [DEMO SIMULATION]", "color: #ffff33 !important;"
+                    alert_prefix = " [DEMO SIMULATION]"
                 elif item["amplified"]:
-                    prefix_label = " [LEGENDARY AMPLIFIED]" if item["legendary"] else " [LOCAL EXTRA CREATIVE]"
-                    box_class = "override-box" if item["legendary"] else "amplified-box"
-                    div_class = "divider-red" if item["legendary"] else "divider-cyan"
-                    alert_prefix = prefix_label
-                    txt_color = "color: #ff3333 !important;" if item["legendary"] else "color: #00ffff !important;"
+                    alert_prefix = " [LEGENDARY AMPLIFIED]" if item["legendary"] else " [LOCAL EXTRA CREATIVE]"
                 else:
-                    box_class = "override-box" if item["legendary"] else "adventure-box"
-                    div_class = "divider-red" if item["legendary"] else "divider"
                     alert_prefix = " [LEGENDARY EXCURSION]" if item["legendary"] else ""
-                    txt_color = "color: #ff3333 !important;" if item["legendary"] else "color: #33ff33 !important;"
                 
-                st.markdown(f"""
-                    <div class="{box_class}">
-                        <strong style="{txt_color}">STOP {index + 1}: {item['mood']}{alert_prefix}</strong><br>
-                        <span style="{txt_color}">[ENVIRONMENT VIBE]: {item['vibe']}</span>
-                        <div class="{div_class}"></div>
-                        <span style="{txt_color}">[ASSIGNMENT]: {item['mission']}</span>
-                    </div>
-                """, unsafe_allow_html=True)
+                # Render using native safe container blocks with color borders
+                with st.container(border=True):
+                    st.markdown(f"**STOP {index + 1}: {item['mood']}{alert_prefix}**")
+                    st.write(f"**[ENVIRONMENT VIBE]:** {item['vibe']}")
+                    st.markdown("---")
+                    st.write(f"**[ASSIGNMENT]:** {item['mission']}")
 
         # --- DIAGNOSTIC ANALYTICS EXPANDER ("STATS FOR NERDS") ---
         with st.expander("📊 STATS FOR NERDS (DIAGNOSTIC ANALYTICS)"):
@@ -265,7 +188,7 @@ else:
             st.text(f"EAT   [{'█' * eat_count}{'░' * (total_stops-eat_count)}] {eat_count} allocations")
             st.text(f"CHILL [{'█' * chill_count}{'░' * (total_stops-chill_count)}] {chill_count} allocations")
             
-            st.markdown("<div class='divider'></div>", unsafe_allow_html=True)
+            st.markdown("---")
             st.write("**🛡️ OPERATIONAL INTEGRITY SCORE:**")
             st.write("- Running Environment: **100% Air-Gapped Sandbox Local**")
             st.write(f"- Active Creative Variations: **{amp_count} structures deployed**")
@@ -280,9 +203,9 @@ else:
     # STEP 5: MISSION DEBRIEF & CONDITIONAL DATA SAVING
     # ==============================================================================
     if st.session_state.show_debrief:
-        st.markdown("<p class='itinerary-header'>== FIELD MISSION DEBRIEF ==</p>", unsafe_allow_html=True)
+        st.markdown("### == FIELD MISSION DEBRIEF ==")
         st.write("RECORD CURRENT TRACKING STATS TO YOUR SHARABLE DATABASE LEDGER:")
-        st.markdown("<div class='divider'></div>", unsafe_allow_html=True)
+        st.markdown("---")
         
         itinerary_map = {item["label"]: item for item in st.session_state.itinerary}
         current_date = datetime.now().strftime("%Y-%m-%d")
@@ -298,7 +221,7 @@ else:
                 
                 status = st.radio(f"Stop {index + 1} Status:", ["COMPLETED", "ABANDONED/SKIPPED"], key=f"status_{index}")
                 notes = st.text_area(f"Quick Notes (Stop {index + 1}):", placeholder="What did you eat? Best photo details? Inside jokes...", key=f"notes_{index}")
-                st.markdown("<div class='divider'></div>", unsafe_allow_html=True)
+                st.markdown("---")
                 
                 new_rows.append({
                     "Date": current_date,
