@@ -175,14 +175,17 @@ BASE MISSION BLUEPRINT: {base_mission}"""
 # ==============================================================================
 def trigger_action_callback(action_type):
     overrides = adventure_pool.get("special_overrides", {})
-    has_override = st.session_state.current_hood in overrides and "packages" in overrides[st.session_state.current_hood]
+    
+    # Target safety check to make sure state has a neighborhood assigned
+    current_hood = st.session_state.get("current_hood")
+    has_override = current_hood in overrides and "packages" in overrides[current_hood] if current_hood else False
     
     is_legendary = False
     base_vibe = ""
     base_mission = ""
     
     if has_override:
-        chosen_package = random.choice(overrides[st.session_state.current_hood]["packages"])
+        chosen_package = random.choice(overrides[current_hood]["packages"])
         base_vibe = chosen_package["vibe"]
         valid_missions = chosen_package.get(action_type, [])
         if not valid_missions:
@@ -217,7 +220,7 @@ def trigger_action_callback(action_type):
     ai_live = st.session_state.ai_active_model and st.session_state.ai_active_model != "OFFLINE"
     is_ai_generated = False
     
-    if ai_live:
+    if ai_live and current_hood:
         # Create unique timestamp token to crack cache wide open
         click_entropy = f"{datetime.now().timestamp()}_{random.randint(100, 999)}"
         
@@ -226,7 +229,7 @@ def trigger_action_callback(action_type):
             modified_base += " (Instruction: Pivot alternative execution style to focus on structural macro-angles, lighting variations, or micro-textures)."
             
         vibe, mission, is_ai_generated = enhance_mission_with_gemini(
-            st.session_state.current_hood, 
+            current_hood, 
             action_type, 
             base_vibe, 
             modified_base,
@@ -239,10 +242,11 @@ def trigger_action_callback(action_type):
         atmosphere = random.choice(cyber_atmospheres[action_type])
         vibe = f"LOCAL FALLBACK // {base_vibe}"
         
+        hood_display = current_hood if current_hood else "CURRENT SECTOR"
         if is_forced_duplicate:
-            mission = f"[{prefix} RE-ROUTE ACTIVE]: ALTERNATE PHASE VECTOR. {atmosphere} {st.session_state.current_hood}. Pivot your objective strategy to focus on nearby structural textures, angles, and micro-details while completing: {base_mission}"
+            mission = f"[{prefix} RE-ROUTE ACTIVE]: ALTERNATE PHASE VECTOR. {atmosphere} {hood_display}. Pivot your objective strategy to focus on nearby structural textures, angles, and micro-details while completing: {base_mission}"
         else:
-            mission = f"[{prefix} ENGAGED]: {atmosphere} {st.session_state.current_hood}. {base_mission}"
+            mission = f"[{prefix} ENGAGED]: {atmosphere} {hood_display}. {base_mission}"
 
     random_hash = random.randint(1000, 9999)
     unique_id = f"{action_type} [{random_hash}]: {mission[:20]}..."
