@@ -61,8 +61,8 @@ if st.session_state.ai_active_model is None:
     if gemini_api_key:
         # Stop sending a "Ping" payload. Assume the key is valid to save Free Tier quota.
         # If the key is bad, the main try/except block will catch it during gameplay anyway.
-        st.session_state.ai_active_model = "gemini-2.5-flash"
-        print("Successfully locked active engine: gemini-2.5-flash")
+        st.session_state.ai_active_model = "gemini-2.0-flash"
+        print("Successfully locked active engine: emini-2.0-flash")
     else:
         st.session_state.ai_active_model = "OFFLINE"
         print("No API key found. Operating in OFFLINE mode.")
