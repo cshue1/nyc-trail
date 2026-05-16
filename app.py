@@ -59,31 +59,13 @@ if st.session_state.ai_active_model is None:
     print(f"Checking for API Key presence: {'FOUND' if gemini_api_key else 'MISSING'}")
     
     if gemini_api_key:
-        try:
-            test_client = genai.Client(api_key=gemini_api_key)
-            # Tier targets checking loop
-            for model_name in ["gemini-2.5-flash", "gemini-1.5-flash", "gemini-pro"]:
-                try:
-                    print(f"Testing connectivity validation ping on: {model_name}")
-                    test_client.models.generate_content(
-                        model=model_name,
-                        contents="Ping",
-                        config=types.GenerateContentConfig(max_output_tokens=5)
-                    )
-                    st.session_state.ai_active_model = model_name
-                    print(f"Successfully locked active engine: {model_name}")
-                    break
-                except Exception as ping_err:
-                    print(f"Ping failed for {model_name}: {ping_err}")
-                    continue
-            if not st.session_state.ai_active_model:
-                st.session_state.ai_active_model = "OFFLINE"
-        except Exception as e:
-            st.sidebar.warning(f"⚠️ SDK Core configuration failed: {str(e)}")
-            print(f"SDK Critical Core configuration exception raised: {e}")
-            st.session_state.ai_active_model = "OFFLINE"
+        # Stop sending a "Ping" payload. Assume the key is valid to save Free Tier quota.
+        # If the key is bad, the main try/except block will catch it during gameplay anyway.
+        st.session_state.ai_active_model = "gemini-2.5-flash"
+        print("Successfully locked active engine: gemini-2.5-flash")
     else:
         st.session_state.ai_active_model = "OFFLINE"
+        print("No API key found. Operating in OFFLINE mode.")
     print("---------------------------------------\n")
 
 # Display Engine Link Status in Sidebar
