@@ -11,7 +11,7 @@ import requests
 # ==============================================================================
 st.set_page_config(page_title="NYC TRAIL PLANNER", page_icon="🤠", layout="centered")
 
-st.title("== NYC TRAIL PLANNER v12.0 ==")
+st.title("== NYC TRAIL PLANNER v14.0 ==")
 
 # ==============================================================================
 # DASHBOARD SYSTEM CONTROL HEADER
@@ -21,7 +21,7 @@ with col_info:
     with st.popover("ℹ️ VIEW SYSTEM WORKFLOW"):
         st.markdown("### == AUTOMATED BACKEND LOOP ==")
         st.write("🤖 **1. STACK:** Drop random location coordinates.")
-        st.write("🧠 **2. ENHANCEMENT:** High-speed router requests live text optimizations.")
+        st.write("🧠 **2. ENHANCEMENT:** Dedicated Gemini Engine optimizes text strings instantly.")
         st.write("📸 **3. CAPTURE:** Document field entries on camera.")
         st.write("📊 **4. TRANSMIT:** Appends telemetry rows directly to Google Sheets.")
 
@@ -34,16 +34,14 @@ if demo_mode:
 st.write("--------------------------------------------------")
 
 # ==============================================================================
-# INITIALIZE HIGH-SPEED HUGGING FACE INFERENCE ROUTER
+# INITIALIZE HIGH-SPEED GOOGLE GEMINI CORE LINK
 # ==============================================================================
 ai_enabled = False
-if "HF_API_KEY" in st.secrets:
-    HF_API_KEY = st.secrets["HF_API_KEY"]
-    API_URL = "https://router.huggingface.co/v1/chat/completions"
-    headers = {
-        "Authorization": f"Bearer {HF_API_KEY}",
-        "Content-Type": "application/json"
-    }
+if "GEMINI_API_KEY" in st.secrets:
+    GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
+    # Dedicated high-speed Google AI API gateway URL
+    API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
+    headers = {"Content-Type": "application/json"}
     ai_enabled = True
 
 # Load JSON Data rations
@@ -69,7 +67,7 @@ if "show_debrief" not in st.session_state: st.session_state.show_debrief = False
 if "used_missions" not in st.session_state: st.session_state.used_missions = []
 
 # ==============================================================================
-# 🧠 PROTECTED STATE CALLBACK CORES (RE-ENGINEERED ROOT EXTRACTION)
+# 🧠 PROTECTED STATE CALLBACK CORES (GEMINI SYSTEM TRANSITION)
 # ==============================================================================
 def trigger_action_callback(action_type):
     overrides = adventure_pool.get("special_overrides", {})
@@ -82,7 +80,6 @@ def trigger_action_callback(action_type):
     if has_override:
         chosen_package = random.choice(overrides[st.session_state.current_hood]["packages"])
         base_vibe = chosen_package["vibe"]
-        # FIX: Access localized sub-arrays explicitly by category key name instead of searching strings
         valid_missions = chosen_package.get(action_type, chosen_package.get("missions", []))
         if not valid_missions:
             valid_missions = chosen_package.get("missions", ["Explore local layout structures."])
@@ -91,7 +88,6 @@ def trigger_action_callback(action_type):
         base_mission = random.choice(unused_override if unused_override else valid_missions)
         is_legendary = True
     else:
-        # FIX: Directly map category arrays to remove keyword string containment bugs
         if action_type == "EAT":
             base_vibe = "CULINARY INTERCEPT MATRIX // AVOCADO-FREE PESCATARIAN PROFILE"
             pool = adventure_pool.get("EAT", {}).get("missions", ["Locate a marketplace counter. Secure shared plates. Zero land-meat broths, zero avocados."])
@@ -113,44 +109,41 @@ def trigger_action_callback(action_type):
     
     if ai_enabled:
         try:
-            # FIX: Specified a high-speed, fully cached router model class
+            system_instruction = f"""You are an advanced content-enhancement engine for a text-adventure game set in NYC. 
+            Match the tone of a high-tech tactical terminal or cyberpunk operative deck.
+            
+            CRITICAL GEOGRAPHIC REALISM PROTOCOLS:
+            - The target neighborhood sector is: {st.session_state.current_hood} (New York City).
+            - Every mission generated MUST be physically true, possible, and logical for the actual geography, architecture, layout, and atmosphere of {st.session_state.current_hood}.
+            
+            CRITICAL ACTION ENFORCEMENT PROTOCOLS:
+            - Current Strategy Component Action Category is: {action_type}. Your generation MUST strictly focus on this specific type of task.
+            - If the category is EAT, the assignment MUST focus on dining, finding fish/vegetarian snacks, kitchen counters, or food markets.
+            - If the category is WALK, the assignment MUST focus on walking, navigating blocks, footprints, and movement photography.
+            - If the category is CHILL, the assignment MUST focus on sitting, resting, pausing, absorbing atmosphere, and stationary observation.
+            - STRICT DIETARY BOUNDARY: If food is referenced, descriptions MUST be strictly pescatarian and COMPLETELY AVOCADO-FREE.
+            - CRITICAL RESTRICTION: Do NOT name or recommend real commercial storefronts, specific shops, or chain brands. Keep spaces generalized to architectural textures.
+            
+            Output format must be exactly this strict raw text structure with no conversational chatter, asterisks, or markdown bold symbols:
+            VIBE: [Text here]
+            MISSION: [Text here]"""
+
             payload = {
-                "model": "Qwen/Qwen2.5-72B-Instruct",
-                "messages": [
-                    {
-                        "role": "system",
-                        "content": f"""You are an advanced content-enhancement engine for a text-adventure game set in NYC. 
-                        Match the tone of a high-tech tactical terminal or cyberpunk operative deck.
-                        
-                        CRITICAL GEOGRAPHIC REALISM PROTOCOLS:
-                        - The target neighborhood sector is: {st.session_state.current_hood} (New York City).
-                        - Every mission generated MUST be physically true, possible, and logical for the actual geography, architecture, layout, and atmosphere of {st.session_state.current_hood}.
-                        
-                        CRITICAL ACTION ENFORCEMENT PROTOCOLS:
-                        - Current Strategy Component Action Category is: {action_type}. Your generation MUST strictly focus on this specific type of task.
-                        - If the category is EAT, the assignment MUST focus on dining, finding fish/vegetarian snacks, kitchen counters, or food markets.
-                        - If the category is WALK, the assignment MUST focus on walking, navigating blocks, footprints, and movement photography.
-                        - If the category is CHILL, the assignment MUST focus on sitting, resting, pausing, absorbing atmosphere, and stationary observation.
-                        - STRICT DIETARY BOUNDARY: If food is referenced, descriptions MUST be strictly pescatarian and COMPLETELY AVOCADO-FREE.
-                        - CRITICAL RESTRICTION: Do NOT name or recommend real commercial storefronts, specific shops, or chain brands. Keep spaces generalized to architectural textures.
-                        
-                        Output format must be exactly this strict raw text structure with no conversational chatter, asterisks, or markdown bold symbols:
-                        VIBE: [Text here]
-                        MISSION: [Text here]"""
-                    },
-                    {
-                        "role": "user",
-                        "content": f"Enhance this configuration profile:\nNEIGHBORHOOD: {st.session_state.current_hood}\nACTION CATEGORY: {action_type}\nBASE VIBE BLUEPRINT: {base_vibe}\nBASE MISSION BLUEPRINT: {base_mission}"
-                    }
-                ],
-                "max_tokens": 250,
-                "temperature": 0.6
+                "contents": [{
+                    "parts": [{
+                        "text": f"{system_instruction}\n\nEnhance this configuration profile:\nNEIGHBORHOOD: {st.session_state.current_hood}\nACTION CATEGORY: {action_type}\nBASE VIBE BLUEPRINT: {base_vibe}\nBASE MISSION BLUEPRINT: {base_mission}"
+                    }]
+                }],
+                "generationConfig": {
+                    "temperature": 0.4,
+                    "maxOutputTokens": 250
+                }
             }
             
             response = requests.post(API_URL, headers=headers, json=payload, timeout=6)
             if response.status_code == 200:
                 response_data = response.json()
-                ai_response = response_data['choices'][0]['message']['content'].strip()
+                ai_response = response_data['candidates'][0]['content']['parts'][0]['text'].strip()
                 
                 extracted_vibe = ""
                 extracted_mission = ""
@@ -247,9 +240,9 @@ else:
                 if demo_mode:
                     alert_prefix = " [DEMO SIMULATION]"
                 elif item["ai_generated"]:
-                    alert_prefix = " [LEGENDARY AI AMPLIFIED]" if item["legendary"] else " [AI CLOUD ENHANCED]"
+                    alert_prefix = " [AI CLOUD ENHANCED]"
                 else:
-                    alert_prefix = " [LEGENDARY EXCURSION]" if item["legendary"] else " [LOCAL CREATIVE]"
+                    alert_prefix = " [LOCAL CREATIVE]"
                 
                 with st.container(border=True):
                     st.markdown(f"**STOP {index + 1}: {item['mood']}{alert_prefix}**")
@@ -274,7 +267,7 @@ else:
             
             st.markdown("---")
             st.write("**🛡️ OPERATIONAL INTEGRITY SCORE:**")
-            st.write(f"- Running AI Cloud Core: **{'CONNECTED (HF ULTRA ROUTER)' if ai_enabled else 'OFFLINE (FALLBACK EMBEDDED)'}**")
+            st.write(f"- Running AI Cloud Core: **{'CONNECTED (GEMINI 2.5 CORE)' if ai_enabled else 'OFFLINE (FALLBACK EMBEDDED)'}**")
             st.write(f"- Active AI Generations: **{ai_count} modules loaded**")
             st.write(f"- Unique Memory Tracking Pool Size: **{len(st.session_state.used_missions)} keys registered**")
             st.write(f"- Cloud Transmission Safety Block: **{'LIVE TO LEDGER' if not demo_mode else 'ENGAGED'}**")
