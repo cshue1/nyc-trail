@@ -11,7 +11,7 @@ import requests
 # ==============================================================================
 st.set_page_config(page_title="NYC TRAIL PLANNER", page_icon="🤠", layout="centered")
 
-st.title("== NYC TRAIL PLANNER v8.0 ==")
+st.title("== NYC TRAIL PLANNER v9.0 ==")
 
 # ==============================================================================
 # DASHBOARD SYSTEM CONTROL HEADER
@@ -21,7 +21,7 @@ with col_info:
     with st.popover("ℹ️ VIEW SYSTEM WORKFLOW"):
         st.markdown("### == AUTOMATED BACKEND LOOP ==")
         st.write("🤖 **1. STACK:** Drop random location coordinates and load objective matrices.")
-        st.write("🧠 **2. ENHANCEMENT:** Hugging Face serverless logic parses your local JSON blueprint, amping its creative profile.")
+        st.write("🧠 **2. ENHANCEMENT:** Hugging Face serverless logic parses your local JSON blueprint, locking context based on category.")
         st.write("📸 **3. CAPTURE:** Document field entries natively on your camera roll.")
         st.write("📊 **4. TRANSMIT:** Appends mission telemetry rows directly to your shared Google Sheet.")
 
@@ -39,7 +39,6 @@ st.write("--------------------------------------------------")
 ai_enabled = False
 if "HF_API_KEY" in st.secrets:
     HF_API_KEY = st.secrets["HF_API_KEY"]
-    # Serverless API endpoint targeting Meta Llama-3 open-source model architecture
     API_URL = "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct"
     headers = {"Authorization": f"Bearer {HF_API_KEY}"}
     ai_enabled = True
@@ -54,9 +53,13 @@ except FileNotFoundError:
 
 # Local fallback arrays for zero-risk text amplification injections if API keys are missing
 cyber_prefixes = ["TACTICAL RECONNAISSANCE PROTOCOL", "SILENT OBJECTIVE VECTOR", "CRITICAL METRIC HUNT", "MINIMALIST FRAMING COGNITION", "GEOMETRIC MATRIX TRACKER"]
-cyber_atmospheres = ["UNDER THE CONCRETE SHADOW GRID OF", "TRACKING THROUGH THE LOW-LIGHT SECTOR CORES OF", "NAVIGATING THE HIGH-CONTRAST TEXTURE FIELDS OF", "EXPLORING THE HISTORIC ARCHITECTURAL CHANNELS OF"]
+cyber_atmospheres = {
+    "WALK": ["TRACKING ON FOOT ALONG THE REINFORCED PERIMETERS OF", "NAVIGATING THE HIGH-CONTRAST URBAN CORRIDORS OF", "EXECUTING MOVEMENT DRILLS DOWN THE BLOCKS OF"],
+    "EAT": ["SOURCING SUSTENANCE NANO-COUNTER TILES INSIDE", "RECONNOITERING KITCHEN EMISSION VENTS IN", "LOCATING A SEAFOOD OR GRAIN REFUEL STATION WITHIN"],
+    "CHILL": ["LOCATING A STATIONARY REST PROFILE DECK AMIDST", "ESTABLISHING A STATIC OBSERVATION SECTOR IN", "ANCHORING POSITION TO ASSIMILATE THE AMBIENT GRID OF"]
+}
 
-# Initialize unified session layout variables
+# Initialize unified session layout variables securely
 if "started" not in st.session_state: st.session_state.started = False
 if "current_hood" not in st.session_state: st.session_state.current_hood = None
 if "itinerary" not in st.session_state: st.session_state.itinerary = []
@@ -101,79 +104,94 @@ else:
             if st.button("➕ ADD CHILL"): st.session_state.active_trigger = "CHILL"
 
         # ==============================================================================
-        # STEP 2: STOCHASTIC & AI AMPLIFICATION ENGINE (HYBRID ROUTE)
+        # STEP 2: STOCHASTIC & AI AMPLIFICATION ENGINE (WITH PARSING REINFORCEMENTS)
         # ==============================================================================
         if st.session_state.active_trigger:
             current_action = st.session_state.active_trigger
             is_legendary = False
             is_ai_generated = False
             
-            # Base text compilation extraction out of adventures.json structure
+            # Context-Aware Baseline Extraction Strategy
             if has_override:
                 chosen_package = random.choice(overrides[st.session_state.current_hood]["packages"])
                 base_vibe = chosen_package["vibe"]
-                base_mission = random.choice(chosen_package["missions"])
+                valid_missions = [m for m in chosen_package["missions"] if current_action in m.upper() or (current_action == "WALK" and "EAT" not in m.upper() and "CHILL" not in m.upper())]
+                if not valid_missions:
+                    valid_missions = chosen_package["missions"]
+                base_mission = random.choice(valid_missions)
                 is_legendary = True
             else:
-                base_vibe = random.choice(adventure_pool["vibes"])
-                base_mission = random.choice(adventure_pool[current_action]["missions"])
+                if current_action == "EAT":
+                    base_vibe = "CULINARY INTERCEPT MATRIX // AVOCADO-FREE PESCATARIAN PROFILE"
+                    base_mission = random.choice(adventure_pool["EAT"]["missions"]) if "EAT" in adventure_pool else "Locate a marketplace or window ledge. Secure shared plates. Zero land-animal broths or meats, zero avocados."
+                elif current_action == "CHILL":
+                    base_vibe = "STATIC STATIONARY ANCHOR // ATMOSPHERIC CALIBRATION"
+                    base_mission = random.choice(adventure_pool["CHILL"]["missions"]) if "CHILL" in adventure_pool else "Halt transit vector. Identify a step, bench, or architectural edge to process the local environment framework silently."
+                else:  # WALK
+                    base_vibe = random.choice(adventure_pool["vibes"])
+                    base_mission = random.choice(adventure_pool["WALK"]["missions"]) if "WALK" in adventure_pool else random.choice(adventure_pool.get("missions", ["Document structural geometric features on foot."]))
 
             # UI Control Switch Layer
             st.write("---")
             use_ai = st.checkbox("🧠 ENGAGE LIVE HUGGING FACE COGNITION", value=True,
                                  help="When checked, uses an open-source model to rewrite descriptions. Uncheck for instant, local generation.")
 
+            vibe = base_vibe
+            mission = base_mission
+
             if use_ai and ai_enabled:
-                with st.spinner("🧠 GENERATING AI CORE MISSION AMPLIFICATION..."):
+                with st.spinner(f"🧠 STRUCTURING EXTENDED {current_action} DATASETS..."):
                     try:
-                        # Structured Llama-3 text instruction parameters
                         prompt_text = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
                         You are the advanced content-enhancement engine for an offline retro text adventure game set in NYC called "NYC TRAIL PLANNER".
                         Match the tone of a high-tech tactical terminal or cyberpunk operative deck.
-                        STRICT DIETARY BOUNDARY: If food is referenced, descriptions MUST be strictly pescatarian and COMPLETELY AVOCADO-FREE.
-                        CRITICAL RESTRICTION: Do NOT name or recommend real-world commercial storefronts or restaurants. Keep spaces generalized to architectural textures (e.g., "a neon counter", "a concrete ledge").
-                        Output your response in exactly this strict raw text structure with no extra conversational chatter:
+                        
+                        CRITICAL ACTION ENFORCEMENT PROTOCOLS:
+                        - Current Strategy Component Action Category is: {current_action}. Your generation MUST strictly focus on this specific type of task.
+                        - If the category is EAT, the assignment MUST focus on dining, finding fish/vegetarian snacks, kitchen counters, or food markets.
+                        - If the category is WALK, the assignment MUST focus on walking, navigating blocks, footprints, and movement photography.
+                        - If the category is CHILL, the assignment MUST focus on sitting, resting, pausing, absorbing atmosphere, and stationary observation.
+                        - STRICT DIETARY BOUNDARY: If food is referenced, descriptions MUST be strictly pescatarian and COMPLETELY AVOCADO-FREE.
+                        - CRITICAL RESTRICTION: Do NOT name or recommend real commercial storefronts, specific shops, or chain brands. Keep spaces generalized to architectural textures.
+                        
+                        Output format must be exactly this strict raw text structure with no conversational chatter, asterisks, or markdown bold symbols:
                         VIBE: [Text here]
                         MISSION: [Text here]<|eot_id|><|start_header_id|>user<|end_header_id|>
-                        Enhance this setup for the location '{st.session_state.current_hood}' and action '{current_action}'.
+                        Enhance this setup for the sector terrain of '{st.session_state.current_hood}' and target strategy action '{current_action}'.
                         BASE VIBE BLUEPRINT: {base_vibe}
                         BASE MISSION BLUEPRINT: {base_mission}
-                        INSTRUCTIONS: Use this base blueprint purely as an imaginative launching pad. Amp up the flavor text, add rich cinematic atmospheric descriptors, and inject unique narrative objective twists.<|eot_id|><|start_header_id|>assistant<|end_header_id|>"""
+                        INSTRUCTIONS: Synthesize a localized text adventure entry. Ensure the resulting mission description completely fits the action modality of '{current_action}' inside {st.session_state.current_hood}.<|eot_id|><|start_header_id|>assistant<|end_header_id|>"""
 
                         payload = {
                             "inputs": prompt_text,
-                            "parameters": {"max_new_tokens": 250, "temperature": 0.7, "return_full_text": False}
+                            "parameters": {"max_new_tokens": 250, "temperature": 0.6, "return_full_text": False}
                         }
                         
                         response = requests.post(API_URL, headers=headers, json=payload)
                         response_data = response.json()
                         
-                        if isinstance(response_data, list):
-                            output_text = response_data[0]['generated_text']
-                        else:
-                            output_text = response_data['generated_text']
-                        
+                        output_text = response_data[0]['generated_text'] if isinstance(response_data, list) else response_data['generated_text']
                         ai_response = output_text.split("<|start_header_id|>assistant<|end_header_id|>")[-1].strip()
                         
-                        vibe = base_vibe
-                        mission = ai_response
+                        # Defensively sanitize and split token entries to handle capitalization fluctuations
                         for line in ai_response.split("\n"):
-                            if line.strip().startswith("VIBE:"): vibe = line.replace("VIBE:", "").strip()
-                            if line.strip().startswith("MISSION:"): mission = line.replace("MISSION:", "").strip()
+                            clean_line = line.replace("**", "").strip()
+                            if clean_line.upper().startswith("VIBE:"):
+                                vibe = clean_line[5:].strip()
+                            elif clean_line.upper().startswith("MISSION:"):
+                                mission = clean_line[8:].strip()
                         
                         is_ai_generated = True
                     except Exception as e:
-                        # Immediate safe structural fallback if server tier rate-limits
-                        vibe = f"LOCAL AMPLER // {base_vibe}"
+                        vibe = f"LOCAL FALLBACK // {base_vibe}"
                         mission = base_mission
             else:
-                # 100% Safe Local programatic extraction if checkbox is cleared
                 prefix = random.choice(cyber_prefixes)
-                atmosphere = random.choice(cyber_atmospheres)
+                atmosphere = random.choice(cyber_atmospheres[current_action])
                 vibe = f"{prefix} // {base_vibe}"
                 mission = f"[{prefix} ENGAGED]: {atmosphere} {st.session_state.current_hood}. {base_mission}"
 
-            # Build an explicit random fingerprint to prevent matching index label rendering traps
+            # Build a random fingerprint hash
             random_hash = random.randint(1000, 9999)
             unique_id = f"{current_action} [{random_hash}]: {mission[:20]}..."
 
@@ -187,7 +205,6 @@ else:
             })
             st.session_state.order_list.append(unique_id)
             
-            # Clear register button memory
             st.session_state.active_trigger = None
             st.rerun()
 
@@ -197,7 +214,7 @@ else:
         st.write("🔧 REORDER OR REMOVE STOPS FROM THE TIMELINE:")
         sorted_order = st.multiselect(
             "Drag, drop, or remove steps to set your sequence metric configuration:",
-            options=st.session_state.order_list,
+            options=[item["label"] for item in st.session_state.itinerary],
             default=st.session_state.order_list
         )
         st.session_state.order_list = sorted_order
@@ -217,12 +234,11 @@ else:
                 else:
                     alert_prefix = " [LEGENDARY EXCURSION]" if item["legendary"] else " [LOCAL CREATIVE]"
                 
-                # Render using native safe container blocks with config color themes
                 with st.container(border=True):
                     st.markdown(f"**STOP {index + 1}: {item['mood']}{alert_prefix}**")
                     st.write(f"**[ENVIRONMENT VIBE]:** {item['vibe']}")
                     st.markdown("---")
-                    st.write(f"**[ASSIGNMENT]:** {item['mission']}")
+                    st.write(f"**[MISSION]:** {item['mission']}")
 
         # --- DIAGNOSTIC ANALYTICS EXPANDER ("STATS FOR NERDS") ---
         with st.expander("📊 STATS FOR NERDS (DIAGNOSTIC ANALYTICS)"):
@@ -252,7 +268,7 @@ else:
             st.rerun()
 
     # ==============================================================================
-    # STEP 5: MISSION DEBRIEF & CONDITIONAL DATA SAVING
+    # STEP 5: MISSION DEBRIEF & CONDITIONAL DATA SAVING (DATA-OPTIMIZED RE-ROUTE)
     # ==============================================================================
     if st.session_state.show_debrief:
         st.markdown("### == FIELD MISSION DEBRIEF ==")
@@ -264,6 +280,7 @@ else:
         
         new_rows = []
         
+        # FIX: Loop strictly through the active sequence ordered list, ignoring discarded multiselect values
         for index, label in enumerate(st.session_state.order_list):
             item = itinerary_map.get(label)
             if item:
@@ -278,7 +295,7 @@ else:
                 new_rows.append({
                     "Date": current_date,
                     "Neighborhood": st.session_state.current_hood,
-                    "Stop_Number": int(index + 1),
+                    "Stop_Number": str(index + 1),  # Defensively saved as string token to eliminate Pandas concat casting errors
                     "Mood": item['mood'],
                     "Vibe": item['vibe'],
                     "Mission": item['mission'],
@@ -298,6 +315,8 @@ else:
                 if conn is not None:
                     try:
                         existing_df = conn.read(ttl=0)
+                        # Normalize column definitions aggressively to handle mixed data schema limits
+                        existing_df['Stop_Number'] = existing_df['Stop_Number'].astype(str)
                         fresh_df = pd.DataFrame(new_rows)
                         updated_df = pd.concat([existing_df, fresh_df], ignore_index=True)
                         conn.update(data=updated_df)
