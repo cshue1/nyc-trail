@@ -4,13 +4,14 @@ import json
 from streamlit_gsheets import GSheetsConnection
 import pandas as pd
 from datetime import datetime
+import requests
 
 # ==============================================================================
 # INITIALIZE APP ENGINE & SURFACE THEME CONFIGURATIONS
 # ==============================================================================
 st.set_page_config(page_title="NYC TRAIL PLANNER", page_icon="🤠", layout="centered")
 
-st.title("== NYC TRAIL PLANNER v7.2 ==")
+st.title("== NYC TRAIL PLANNER v8.0 ==")
 
 # ==============================================================================
 # DASHBOARD SYSTEM CONTROL HEADER
@@ -20,7 +21,7 @@ with col_info:
     with st.popover("ℹ️ VIEW SYSTEM WORKFLOW"):
         st.markdown("### == AUTOMATED BACKEND LOOP ==")
         st.write("🤖 **1. STACK:** Drop random location coordinates and load objective matrices.")
-        st.write("🔒 **2. DETERMINISTIC CORE:** Runs 100% locally with zero external network execution data risk.")
+        st.write("🧠 **2. ENHANCEMENT:** Hugging Face serverless logic parses your local JSON blueprint, amping its creative profile.")
         st.write("📸 **3. CAPTURE:** Document field entries natively on your camera roll.")
         st.write("📊 **4. TRANSMIT:** Appends mission telemetry rows directly to your shared Google Sheet.")
 
@@ -33,8 +34,17 @@ if demo_mode:
 st.write("--------------------------------------------------")
 
 # ==============================================================================
-# SECURE LOCAL DATA EXTRACTION ENGINE
+# INITIALIZE FREE HUGGING FACE INFERENCE CLIENT
 # ==============================================================================
+ai_enabled = False
+if "HF_API_KEY" in st.secrets:
+    HF_API_KEY = st.secrets["HF_API_KEY"]
+    # Serverless API endpoint targeting Meta Llama-3 open-source model architecture
+    API_URL = "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct"
+    headers = {"Authorization": f"Bearer {HF_API_KEY}"}
+    ai_enabled = True
+
+# Load JSON Data rations
 try:
     with open("adventures.json", "r") as file:
         adventure_pool = json.load(file)
@@ -42,15 +52,17 @@ except FileNotFoundError:
     st.error("CRITICAL ERROR: MISSING ADVENTURES.JSON SOURCE DECK.")
     adventure_pool = {}
 
-# Local matrix arrays for zero-risk, high-flavor text amplification injections
+# Local fallback arrays for zero-risk text amplification injections if API keys are missing
 cyber_prefixes = ["TACTICAL RECONNAISSANCE PROTOCOL", "SILENT OBJECTIVE VECTOR", "CRITICAL METRIC HUNT", "MINIMALIST FRAMING COGNITION", "GEOMETRIC MATRIX TRACKER"]
 cyber_atmospheres = ["UNDER THE CONCRETE SHADOW GRID OF", "TRACKING THROUGH THE LOW-LIGHT SECTOR CORES OF", "NAVIGATING THE HIGH-CONTRAST TEXTURE FIELDS OF", "EXPLORING THE HISTORIC ARCHITECTURAL CHANNELS OF"]
 
+# Initialize unified session layout variables
 if "started" not in st.session_state: st.session_state.started = False
 if "current_hood" not in st.session_state: st.session_state.current_hood = None
 if "itinerary" not in st.session_state: st.session_state.itinerary = []
 if "order_list" not in st.session_state: st.session_state.order_list = []
 if "show_debrief" not in st.session_state: st.session_state.show_debrief = False
+if "active_trigger" not in st.session_state: st.session_state.active_trigger = None
 
 try:
     conn = st.connection("gsheets", type=GSheetsConnection)
@@ -69,6 +81,7 @@ if not st.session_state.started:
             st.session_state.itinerary = []
             st.session_state.order_list = []
             st.session_state.show_debrief = False
+            st.session_state.active_trigger = None
             st.rerun()
 else:
     st.markdown(f"### [DROPPED SECTOR]: {st.session_state.current_hood}")
@@ -79,23 +92,23 @@ else:
     if not st.session_state.show_debrief:
         st.write("CHOOSE YOUR STRATEGY FOR THE NEXT STOP IN THIS AREA:")
         col1, col2, col3 = st.columns(3)
-        chosen_mood = None
 
         with col1:
-            if st.button("➕ ADD WALK"): chosen_mood = "WALK"
+            if st.button("➕ ADD WALK"): st.session_state.active_trigger = "WALK"
         with col2:
-            if st.button("➕ ADD EAT"): chosen_mood = "EAT"
+            if st.button("➕ ADD EAT"): st.session_state.active_trigger = "EAT"
         with col3:
-            if st.button("➕ ADD CHILL"): chosen_mood = "CHILL"
+            if st.button("➕ ADD CHILL"): st.session_state.active_trigger = "CHILL"
 
         # ==============================================================================
-        # STEP 2: STOCHASTIC AMPLIFICATION GATEWAY (100% SECURE & LOCAL)
+        # STEP 2: STOCHASTIC & AI AMPLIFICATION ENGINE (HYBRID ROUTE)
         # ==============================================================================
-        if chosen_mood:
+        if st.session_state.active_trigger:
+            current_action = st.session_state.active_trigger
             is_legendary = False
-            is_amplified = False
+            is_ai_generated = False
             
-            # Base Extraction
+            # Base text compilation extraction out of adventures.json structure
             if has_override:
                 chosen_package = random.choice(overrides[st.session_state.current_hood]["packages"])
                 base_vibe = chosen_package["vibe"]
@@ -103,39 +116,79 @@ else:
                 is_legendary = True
             else:
                 base_vibe = random.choice(adventure_pool["vibes"])
-                base_mission = random.choice(adventure_pool[chosen_mood]["missions"])
+                base_mission = random.choice(adventure_pool[current_action]["missions"])
 
-            # UI Control Switch
+            # UI Control Switch Layer
             st.write("---")
-            amplify_flavor = st.checkbox("⚡ ACTIVATE LOCAL CREATIVE AMPLIFIER PROTOCOL", value=False, 
-                                         help="Uses local deterministic random text layers to expand cinematic description fields safely.")
+            use_ai = st.checkbox("🧠 ENGAGE LIVE HUGGING FACE COGNITION", value=True,
+                                 help="When checked, uses an open-source model to rewrite descriptions. Uncheck for instant, local generation.")
 
-            if amplify_flavor:
-                is_amplified = True
+            if use_ai and ai_enabled:
+                with st.spinner("🧠 GENERATING AI CORE MISSION AMPLIFICATION..."):
+                    try:
+                        # Structured Llama-3 text instruction parameters
+                        prompt_text = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
+                        You are the advanced content-enhancement engine for an offline retro text adventure game set in NYC called "NYC TRAIL PLANNER".
+                        Match the tone of a high-tech tactical terminal or cyberpunk operative deck.
+                        STRICT DIETARY BOUNDARY: If food is referenced, descriptions MUST be strictly pescatarian and COMPLETELY AVOCADO-FREE.
+                        CRITICAL RESTRICTION: Do NOT name or recommend real-world commercial storefronts or restaurants. Keep spaces generalized to architectural textures (e.g., "a neon counter", "a concrete ledge").
+                        Output your response in exactly this strict raw text structure with no extra conversational chatter:
+                        VIBE: [Text here]
+                        MISSION: [Text here]<|eot_id|><|start_header_id|>user<|end_header_id|>
+                        Enhance this setup for the location '{st.session_state.current_hood}' and action '{current_action}'.
+                        BASE VIBE BLUEPRINT: {base_vibe}
+                        BASE MISSION BLUEPRINT: {base_mission}
+                        INSTRUCTIONS: Use this base blueprint purely as an imaginative launching pad. Amp up the flavor text, add rich cinematic atmospheric descriptors, and inject unique narrative objective twists.<|eot_id|><|start_header_id|>assistant<|end_header_id|>"""
+
+                        payload = {
+                            "inputs": prompt_text,
+                            "parameters": {"max_new_tokens": 250, "temperature": 0.7, "return_full_text": False}
+                        }
+                        
+                        response = requests.post(API_URL, headers=headers, json=payload)
+                        response_data = response.json()
+                        
+                        if isinstance(response_data, list):
+                            output_text = response_data[0]['generated_text']
+                        else:
+                            output_text = response_data['generated_text']
+                        
+                        ai_response = output_text.split("<|start_header_id|>assistant<|end_header_id|>")[-1].strip()
+                        
+                        vibe = base_vibe
+                        mission = ai_response
+                        for line in ai_response.split("\n"):
+                            if line.strip().startswith("VIBE:"): vibe = line.replace("VIBE:", "").strip()
+                            if line.strip().startswith("MISSION:"): mission = line.replace("MISSION:", "").strip()
+                        
+                        is_ai_generated = True
+                    except Exception as e:
+                        # Immediate safe structural fallback if server tier rate-limits
+                        vibe = f"LOCAL AMPLER // {base_vibe}"
+                        mission = base_mission
+            else:
+                # 100% Safe Local programatic extraction if checkbox is cleared
                 prefix = random.choice(cyber_prefixes)
                 atmosphere = random.choice(cyber_atmospheres)
-                
                 vibe = f"{prefix} // {base_vibe}"
-                mission = f"[{prefix} ENGAGED]: {atmosphere} {st.session_state.current_hood}. Execute following parameters precisely: {base_mission}"
-            else:
-                vibe = base_vibe
-                mission = base_mission
+                mission = f"[{prefix} ENGAGED]: {atmosphere} {st.session_state.current_hood}. {base_mission}"
 
-            # Deduplicate labels to safeguard timeline sorting mechanics
-            unique_id = f"{chosen_mood}: {mission[:30]}..."
-            dup_count = sum(1 for x in st.session_state.itinerary if x["label"].startswith(unique_id))
-            if dup_count > 0:
-                unique_id = f"{chosen_mood} ({dup_count + 1}): {mission[:30]}..."
+            # Build an explicit random fingerprint to prevent matching index label rendering traps
+            random_hash = random.randint(1000, 9999)
+            unique_id = f"{current_action} [{random_hash}]: {mission[:20]}..."
 
             st.session_state.itinerary.append({
                 "label": unique_id,
-                "mood": chosen_mood,
+                "mood": current_action,
                 "vibe": vibe,
                 "mission": mission,
                 "legendary": is_legendary,
-                "amplified": is_amplified
+                "ai_generated": is_ai_generated
             })
             st.session_state.order_list.append(unique_id)
+            
+            # Clear register button memory
+            st.session_state.active_trigger = None
             st.rerun()
 
     # --- STEP 3: INTERACTIVE TIMELINE REORDERING ---
@@ -157,15 +210,14 @@ else:
         for index, label in enumerate(st.session_state.order_list):
             item = itinerary_map.get(label)
             if item:
-                # Assign structural alert prefixes based on system attributes
                 if demo_mode:
                     alert_prefix = " [DEMO SIMULATION]"
-                elif item["amplified"]:
-                    alert_prefix = " [LEGENDARY AMPLIFIED]" if item["legendary"] else " [LOCAL EXTRA CREATIVE]"
+                elif item["ai_generated"]:
+                    alert_prefix = " [LEGENDARY AI AMPLIFIED]" if item["legendary"] else " [AI CLOUD ENHANCED]"
                 else:
-                    alert_prefix = " [LEGENDARY EXCURSION]" if item["legendary"] else ""
+                    alert_prefix = " [LEGENDARY EXCURSION]" if item["legendary"] else " [LOCAL CREATIVE]"
                 
-                # Render using native safe container blocks with color borders
+                # Render using native safe container blocks with config color themes
                 with st.container(border=True):
                     st.markdown(f"**STOP {index + 1}: {item['mood']}{alert_prefix}**")
                     st.write(f"**[ENVIRONMENT VIBE]:** {item['vibe']}")
@@ -181,7 +233,7 @@ else:
             eat_count = sum(1 for x in active_items if x["mood"] == "EAT")
             chill_count = sum(1 for x in active_items if x["mood"] == "CHILL")
             legendary_count = sum(1 for x in active_items if x["legendary"])
-            amp_count = sum(1 for x in active_items if x.get("amplified", False))
+            ai_count = sum(1 for x in active_items if x.get("ai_generated", False))
             
             st.markdown(f"**⚡ TOTAL TIMELINE ENTRIES:** {total_stops} stops configured")
             st.text(f"WALK  [{'█' * walk_count}{'░' * (total_stops-walk_count)}] {walk_count} allocations")
@@ -190,9 +242,9 @@ else:
             
             st.markdown("---")
             st.write("**🛡️ OPERATIONAL INTEGRITY SCORE:**")
-            st.write("- Running Environment: **100% Air-Gapped Sandbox Local**")
-            st.write(f"- Active Creative Variations: **{amp_count} structures deployed**")
-            st.write("- Third-Party Security Vulnerability Vector: **0.00%**")
+            st.write(f"- Running AI Cloud Core: **{'CONNECTED (HF SERVERLESS)' if ai_enabled else 'OFFLINE (FALLBACK EMBEDDED)'}**")
+            st.write(f"- Active AI Generations: **{ai_count} modules loaded**")
+            st.write(f"- Cloud Transmission Safety Block: **{'ENGAGED (SANDBOX OVERRIDE)' if demo_mode else 'LIVE TO LEDGER'}**")
 
         st.write("--------------------------------------------------")
         if st.button("🏁 END DAY & OPEN MISSION DEBRIEF"):
@@ -265,4 +317,5 @@ else:
         st.session_state.itinerary = []
         st.session_state.order_list = []
         st.session_state.show_debrief = False
+        st.session_state.active_trigger = None
         st.rerun()
