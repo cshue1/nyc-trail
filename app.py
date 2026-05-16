@@ -104,14 +104,53 @@ else:
             if st.button("➕ ADD CHILL"): st.session_state.active_trigger = "CHILL"
 
         # ==============================================================================
-            # STEP 2: REINFORCED HYBRID GENERATION DETECTOR
-            # ==============================================================================
-            if use_ai and ai_enabled:
+        # STEP 2: STOCHASTIC & AI AMPLIFICATION ENGINE (GEOGRAPHICALLY ANCHORED)
+        # ==============================================================================
+        if st.session_state.active_trigger:
+            current_action = st.session_state.active_trigger
+            is_legendary = False
+            is_ai_generated = False
+            
+            # SAFE BASELINE DECLARATION: Locks down namespaces to block NameErrors completely
+            use_ai = True
+            vibe = ""
+            mission = ""
+            
+            # Context-Aware Baseline Extraction Strategy
+            if has_override:
+                chosen_package = random.choice(overrides[st.session_state.current_hood]["packages"])
+                base_vibe = chosen_package["vibe"]
+                valid_missions = [m for m in chosen_package["missions"] if current_action in m.upper() or (current_action == "WALK" and "EAT" not in m.upper() and "CHILL" not in m.upper())]
+                if not valid_missions:
+                    valid_missions = chosen_package["missions"]
+                base_mission = random.choice(valid_missions)
+                is_legendary = True
+            else:
+                if current_action == "EAT":
+                    base_vibe = "CULINARY INTERCEPT MATRIX // AVOCADO-FREE PESCATARIAN PROFILE"
+                    base_mission = random.choice(adventure_pool["EAT"]["missions"]) if "EAT" in adventure_pool else "Locate a marketplace or window ledge. Secure shared plates. Zero land-animal broths or meats, zero avocados."
+                elif current_action == "CHILL":
+                    base_vibe = "STATIC STATIONARY ANCHOR // ATMOSPHERIC CALIBRATION"
+                    base_mission = random.choice(adventure_pool["CHILL"]["missions"]) if "CHILL" in adventure_pool else "Halt transit vector. Identify a step, bench, or architectural edge to process the local environment framework silently."
+                else:  # WALK
+                    base_vibe = random.choice(adventure_pool["vibes"])
+                    base_mission = random.choice(adventure_pool["WALK"]["missions"]) if "WALK" in adventure_pool else random.choice(adventure_pool.get("missions", ["Document structural geometric features on foot."]))
+
+            # Default values initialization before network attempt
+            vibe = base_vibe
+            mission = base_mission
+
+            if ai_enabled:
                 with st.spinner(f"🧠 STRUCTURING EXTENDED {current_action} DATASETS..."):
                     try:
                         prompt_text = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
                         You are the advanced content-enhancement engine for an offline retro text adventure game set in NYC called "NYC TRAIL PLANNER".
                         Match the tone of a high-tech tactical terminal or cyberpunk operative deck.
+                        
+                        CRITICAL GEOGRAPHIC REALISM PROTOCOLS:
+                        - The target neighborhood sector is: {st.session_state.current_hood} (New York City).
+                        - Every mission generated MUST be physically true, possible, and logical for the actual geography, architecture, layout, and atmosphere of {st.session_state.current_hood}.
+                        - Do NOT hallucinate features that do not exist in this specific neighborhood (e.g., do not mention rivers/views if the neighborhood is landlocked, do not mention massive parks if it is entirely industrial concrete).
                         
                         CRITICAL ACTION ENFORCEMENT PROTOCOLS:
                         - Current Strategy Component Action Category is: {current_action}. Your generation MUST strictly focus on this specific type of task.
@@ -124,18 +163,18 @@ else:
                         Output format must be exactly this strict raw text structure with no conversational chatter, asterisks, or markdown bold symbols:
                         VIBE: [Text here]
                         MISSION: [Text here]<|eot_id|><|start_header_id|>user<|end_header_id|>
-                        Enhance this setup for the sector terrain of '{st.session_state.current_hood}' and target strategy action '{current_action}'.
+                        Enhance this setup for the specific sector terrain of '{st.session_state.current_hood}' and target strategy action '{current_action}'.
                         BASE VIBE BLUEPRINT: {base_vibe}
                         BASE MISSION BLUEPRINT: {base_mission}
-                        INSTRUCTIONS: Synthesize a localized text adventure entry. Ensure the resulting mission description completely fits the action modality of '{current_action}' inside {st.session_state.current_hood}.<|eot_id|><|start_header_id|>assistant<|end_header_id|>"""
+                        INSTRUCTIONS: Synthesize a localized text adventure entry. Ensure the resulting mission description completely fits the action modality of '{current_action}' and matches the real-world physical reality of {st.session_state.current_hood}.<|eot_id|><|start_header_id|>assistant<|end_header_id|>"""
 
                         payload = {
                             "inputs": prompt_text,
-                            "parameters": {"max_new_tokens": 250, "temperature": 0.6, "return_full_text": False}
+                            "parameters": {"max_new_tokens": 250, "temperature": 0.5, "return_full_text": False}
                         }
                         
                         response = requests.post(API_URL, headers=headers, json=payload, timeout=7)
-                        response.raise_for_status() # Force error check
+                        response.raise_for_status()
                         response_data = response.json()
                         
                         output_text = response_data[0]['generated_text'] if isinstance(response_data, list) else response_data['generated_text']
@@ -150,17 +189,16 @@ else:
                         
                         is_ai_generated = True
                     except Exception as e:
-                        # SECURITY VALVE: If cloud logic fails, immediately force a hard local permutation layout
-                        use_ai = False 
+                        use_ai = False
 
-            # Local generation engine runs if use_ai is False OR if the cloud try block failed above
+            # Local generation backup runs if use_ai evaluates to False or if API crashes out above
             if not is_ai_generated:
                 prefix = random.choice(cyber_prefixes)
                 atmosphere = random.choice(cyber_atmospheres[current_action])
                 vibe = f"LOCAL FALLBACK // {base_vibe}"
                 mission = f"[{prefix} ENGAGED]: {atmosphere} {st.session_state.current_hood}. {base_mission}"
 
-            # Build a totally random unique fingerprint string to prevent duplicate multiselect crashes
+            # Build a random fingerprint hash to protect the sorting matrix index bounds
             random_hash = random.randint(1000, 9999)
             unique_id = f"{current_action} [{random_hash}]: {mission[:20]}..."
 
@@ -174,7 +212,6 @@ else:
             })
             st.session_state.order_list.append(unique_id)
             
-            # CLEAR REGISTERS AND SHUT DOWN REFRESH LOOP
             st.session_state.active_trigger = None
             st.rerun()
 
