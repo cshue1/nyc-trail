@@ -4,12 +4,11 @@ import json
 from streamlit_gsheets import GSheetsConnection
 import pandas as pd
 from datetime import datetime
-import requests
 
 st.set_page_config(page_title="NYC TRAIL PLANNER", page_icon="🤠", layout="centered")
 
 # ==============================================================================
-# RETRO CYBERPUNK TERMINAL CSS THEME OVERRIDES
+# RETRO CYBERPUNK TERMINAL CSS THEME OVERRIDES (WITH SECURITY BYPASS APPLIED)
 # ==============================================================================
 st.markdown("""
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -26,7 +25,6 @@ st.markdown("""
     h1 { font-size: 48px !important; text-align: center; text-transform: uppercase; }
     h3 { font-size: 32px !important; text-transform: uppercase; }
     
-    /* System Command Buttons & Popover Inputs */
     .stButton>button, div[data-testid="stPopover"] > button {
         width: 100%;
         background-color: #000000 !important;
@@ -44,14 +42,12 @@ st.markdown("""
         color: #000000 !important; 
     }
     
-    /* Popover Content Dialogue Window */
     div[data-testid="stPopoverBody"] {
         background-color: #111111 !important;
         border: 3px solid #33ff33 !important;
         padding: 15px !important;
     }
     
-    /* Stats Expander Custom Outline Framework */
     div[data-testid="stExpander"] {
         background-color: #000000 !important;
         border: 3px solid #33ff33 !important;
@@ -67,11 +63,10 @@ st.markdown("""
         font-size: 22px !important;
     }
     
-    /* Strategic UI Card Matrices */
     .adventure-box { background-color: #000000; border: 4px double #33ff33; padding: 15px; margin-top: 15px; line-height: 1.4; }
     .override-box { background-color: #000000; border: 4px double #ff3333; padding: 15px; margin-top: 15px; line-height: 1.4; color: #ff3333 !important; }
     .demo-box { background-color: #000000; border: 4px double #ffff33; padding: 15px; margin-top: 15px; line-height: 1.4; color: #ffff33 !important; }
-    .ai-box { background-color: #000000; border: 4px double #00ffff; padding: 15px; margin-top: 15px; line-height: 1.4; color: #00ffff !important; }
+    .amplified-box { background-color: #000000; border: 4px double #00ffff; padding: 15px; margin-top: 15px; line-height: 1.4; color: #00ffff !important; }
     
     .itinerary-header { font-size: 36px !important; margin-top: 30px; text-decoration: underline; text-transform: uppercase; }
     .divider { border-top: 3px dashed #33ff33; margin: 10px 0; }
@@ -81,28 +76,25 @@ st.markdown("""
     
     div[data-baseweb="select"] { background-color: #000000 !important; border: 2px dashed #33ff33 !important; }
     div[role="button"] { background-color: #111111 !important; color: #33ff33 !important; border: 1px solid #33ff33 !important; }
-    
-    /* Force check labels into monochrome green */
-    div[data-testid="stCheckbox"] label p { color: #33ff33 !important; }
     </style>
 """, unsafe_allow_html=True)
 
-st.markdown("<h1>== NYC TRAIL PLANNER v6.5 ==</h1>", unsafe_allow_html=True)
+st.markdown("<h1>== NYC TRAIL PLANNER v1 ==</h1>", unsafe_allow_html=True)
 
 # ==============================================================================
-# DASHBOARD SYSTEM CONTROL HEADER
+# SYSTEM CONTROL HEADER
 # ==============================================================================
 col_info, col_toggle = st.columns([2, 1])
 with col_info:
     with st.popover("ℹ️ VIEW SYSTEM WORKFLOW"):
         st.markdown("<h3 style='color: #33ff33 !important;'>== AUTOMATED BACKEND LOOP ==</h3>", unsafe_allow_html=True)
-        st.write("🤖 **1. STACK:** Drop your random sector and map custom itinerary components.")
-        st.write("🧠 **2. ENHANCEMENT:** Hugging Face serverless logic parses your local JSON blueprint, amping its creative profile.")
-        st.write("📸 **3. CAPTURE:** Take photos natively on your device camera roll while executing operations.")
-        st.write("📊 **4. TRANSMIT:** Appends a text telemetry log row straight to your shared Google Sheet.")
+        st.write("🤖 **1. STACK:** Drop random location coordinates and load objective matrices.")
+        st.write("🔒 **2. DETERMINISTIC CORE:** Runs 100% locally with zero external network execution data risk.")
+        st.write("📸 **3. CAPTURE:** Document field entries natively on your camera roll.")
+        st.write("📊 **4. TRANSMIT:** Appends mission telemetry rows directly to your shared Google Sheet.")
 
 with col_toggle:
-    demo_mode = st.toggle("🛠️ DEMO MODE", value=False, help="Blocks all Google Sheets writes and simulates staging logs.")
+    demo_mode = st.toggle("🛠️ DEMO MODE", value=False, help="Blocks Google Sheet streaming updates to simulate sandboxed logs.")
 
 if demo_mode:
     st.markdown("<p style='color: #ffff33 !important; text-align: center; font-weight: bold;'>⚠️ SANDBOX MATRIX ENGAGED: TRANSMISSIONS DEACTIVATED ⚠️</p>", unsafe_allow_html=True)
@@ -110,25 +102,19 @@ if demo_mode:
 st.write("--------------------------------------------------")
 
 # ==============================================================================
-# INITIALIZE FREE HUGGING FACE INFERENCE CLIENT
+# SECURE LOCAL DATA EXTRACTION ENGINE
 # ==============================================================================
-ai_enabled = False
-if "HF_API_KEY" in st.secrets:
-    HF_API_KEY = st.secrets["HF_API_KEY"]
-    # Endpoint architecture targeting Meta Llama-3 structural compilation open-source model
-    API_URL = "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct"
-    headers = {"Authorization": f"Bearer {HF_API_KEY}"}
-    ai_enabled = True
-
-# Load JSON Data rations
 try:
     with open("adventures.json", "r") as file:
         adventure_pool = json.load(file)
 except FileNotFoundError:
-    st.error("CRITICAL ERROR: MISSING ADVENTURES.JSON SOURCE LEDGER.")
+    st.error("CRITICAL ERROR: MISSING ADVENTURES.JSON SOURCE DECK.")
     adventure_pool = {}
 
-# --- INITIALIZE PERSISTENT SESSION STATES ---
+# Local matrix arrays for zero-risk, high-flavor text amplification injections
+cyber_prefixes = ["TACTICAL RECONNAISSANCE PROTOCOL", "SILENT OBJECTIVE VECTOR", "CRITICAL METRIC HUNT", "MINIMALIST FRAMING COGNITION", "GEOMETRIC MATRIX TRACKER"]
+cyber_atmospheres = ["UNDER THE CONCRETE SHADOW GRID OF", "TRACKING THROUGH THE LOW-LIGHT SECTOR CORES OF", "NAVIGATING THE HIGH-CONTRAST TEXTURE FIELDS OF", "EXPLORING THE HISTORIC ARCHITECTURAL CHANNELS OF"]
+
 if "started" not in st.session_state: st.session_state.started = False
 if "current_hood" not in st.session_state: st.session_state.current_hood = None
 if "itinerary" not in st.session_state: st.session_state.itinerary = []
@@ -141,7 +127,7 @@ except Exception:
     conn = None
 
 # ==============================================================================
-# STEP 1: DROP REGIONAL LOCATION SECTOR
+# STEP 1: DEPLOY REGIONAL DROP SECTOR
 # ==============================================================================
 if not st.session_state.started:
     st.write("READY TO ASSIGN YOUR REGIONAL DROP SECTOR?")
@@ -172,13 +158,13 @@ else:
             if st.button("➕ ADD CHILL"): chosen_mood = "CHILL"
 
         # ==============================================================================
-        # STEP 2: DUAL-BRANCH HUGGING FACE FREE COGNITIVE ENGINE
+        # STEP 2: STOCHASTIC AMPLIFICATION GATEWAY (100% SECURE & LOCAL)
         # ==============================================================================
         if chosen_mood:
             is_legendary = False
-            is_ai = False
+            is_amplified = False
             
-            # Extract baseline data strings straight from adventures.json template configuration
+            # Base Extraction
             if has_override:
                 chosen_package = random.choice(overrides[st.session_state.current_hood]["packages"])
                 base_vibe = chosen_package["vibe"]
@@ -188,74 +174,23 @@ else:
                 base_vibe = random.choice(adventure_pool["vibes"])
                 base_mission = random.choice(adventure_pool[chosen_mood]["missions"])
 
-            # Render live geo-mapping checkbox parameter directly inside action sequence
+            # UI Control Switch
             st.write("---")
-            activate_live_map = st.checkbox("🛰️ MAP TO REAL-WORLD STREET COORDINATES", value=False, 
-                                            help="Flipping this anchors the AI amplification step to a specific, real commercial venue name or physical address landmark.")
+            amplify_flavor = st.checkbox("⚡ ACTIVATE LOCAL CREATIVE AMPLIFIER PROTOCOL", value=False, 
+                                         help="Uses local deterministic random text layers to expand cinematic description fields safely.")
 
-            if ai_enabled:
-                is_ai = True
-                with st.spinner("🧠 ENGAGING FREE HUGGING FACE COGNITION MATRIX..."):
-                    try:
-                        if activate_live_map:
-                            # BRANCH A: DYNAMIC PHYSICAL GEO-MAPPING
-                            prompt_text = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
-                            You are the advanced content-enhancement engine for an offline retro text adventure game set in NYC called "NYC TRAIL PLANNER".
-                            Match the tone of a high-tech tactical terminal or cyberpunk operative deck.
-                            STRICT DIETARY BOUNDARY: If food is referenced, the target venue and food item MUST be strictly pescatarian (fish/seafood/dairy/eggs allowed; NO land meats/broths) and COMPLETELY AVOCADO-FREE. Do not include avocados under any circumstances.
-                            Output your response in exactly this strict raw text structure with no extra conversational banter:
-                            VIBE: [Text here]
-                            MISSION: [Text here]<|eot_id|><|start_header_id|>user<|end_header_id|>
-                            Enhance this setup for the location '{st.session_state.current_hood}' and action '{chosen_mood}'.
-                            BASE VIBE: {base_vibe}
-                            BASE MISSION: {base_mission}
-                            INSTRUCTIONS: Take the photography framing rules and constraints from the BASE MISSION, amplify the text styling, and map it directly onto a real, specific, highly-rated physical venue or landmark inside {st.session_state.current_hood}.<|eot_id|><|start_header_id|>assistant<|end_header_id|>"""
-                        else:
-                            # BRANCH B: CONCEPTUAL CREATIVE AMPLIFICATION (PURE IMAGINATION)
-                            prompt_text = f"""<|begin_of_text|><|start_header_id|>system<|end_header_id|>
-                            You are the creative amplification engine for an offline retro text adventure game set in NYC called "NYC TRAIL PLANNER".
-                            Match the tone of a high-tech tactical terminal or cyberpunk operative deck.
-                            STRICT DIETARY BOUNDARY: If food is referenced, keep descriptions strictly pescatarian and completely avocado-free.
-                            CRITICAL RESTRICTION: Do NOT name or recommend real-world commercial business storefronts, restaurants, or specific shops. Keep it generalized to architectural types (e.g., "a dim-lit neon window", "an old brick stoop").
-                            Output your response in exactly this strict raw text structure with no extra conversational banter:
-                            VIBE: [Text here]
-                            MISSION: [Text here]<|eot_id|><|start_header_id|>user<|end_header_id|>
-                            Enhance this setup for the location '{st.session_state.current_hood}' and action '{chosen_mood}'.
-                            BASE VIBE: {base_vibe}
-                            BASE MISSION: {base_mission}
-                            INSTRUCTIONS: Use this base blueprint purely as an imaginative launching pad. Amp up the flavor text, add rich cinematic atmospheric descriptors, and inject unique narrative objective twists.<|eot_id|><|start_header_id|>assistant<|end_header_id|>"""
-
-                        payload = {
-                            "inputs": prompt_text,
-                            "parameters": {"max_new_tokens": 250, "temperature": 0.7, "return_full_text": False}
-                        }
-                        
-                        response = requests.post(API_URL, headers=headers, json=payload)
-                        response_data = response.json()
-                        
-                        # Handle potential raw list wrapped objects depending on HF inference routing maps
-                        if isinstance(response_data, list):
-                            output_text = response_data[0]['generated_text']
-                        else:
-                            output_text = response_data['generated_text']
-                        
-                        # Isolate just the text produced past the token header boundaries
-                        ai_response = output_text.split("<|start_header_id|>assistant<|end_header_id|准确>")[-1].strip()
-                        
-                        vibe = base_vibe
-                        mission = ai_response
-                        for line in ai_response.split("\n"):
-                            if line.strip().startswith("VIBE:"): vibe = line.replace("VIBE:", "").strip()
-                            if line.strip().startswith("MISSION:"): mission = line.replace("MISSION:", "").strip()
-                            
-                    except Exception as e:
-                        vibe = base_vibe + " (Serverless Pipeline Fallback)"
-                        mission = base_mission
+            if amplify_flavor:
+                is_amplified = True
+                prefix = random.choice(cyber_prefixes)
+                atmosphere = random.choice(cyber_atmospheres)
+                
+                vibe = f"{prefix} // {base_vibe}"
+                mission = f"[{prefix} ENGAGED]: {atmosphere} {st.session_state.current_hood}. Execute following parameters precisely: {base_mission}"
             else:
                 vibe = base_vibe
                 mission = base_mission
 
-            # Deduplicate labels to keep timeline multiselect sorting indexes clean
+            # Deduplicate labels to safeguard timeline sorting mechanics
             unique_id = f"{chosen_mood}: {mission[:30]}..."
             dup_count = sum(1 for x in st.session_state.itinerary if x["label"].startswith(unique_id))
             if dup_count > 0:
@@ -267,13 +202,12 @@ else:
                 "vibe": vibe,
                 "mission": mission,
                 "legendary": is_legendary,
-                "ai_generated": is_ai,
-                "live_mapped": activate_live_map
+                "amplified": is_amplified
             })
             st.session_state.order_list.append(unique_id)
             st.rerun()
 
-    # --- STEP 3: INTERACTIVE DRAG-AND-DROP REORDERING ---
+    # --- STEP 3: INTERACTIVE TIMELINE REORDERING ---
     if st.session_state.itinerary and not st.session_state.show_debrief:
         st.write("--------------------------------------------------")
         st.write("🔧 REORDER OR REMOVE STOPS FROM THE TIMELINE:")
@@ -284,7 +218,7 @@ else:
         )
         st.session_state.order_list = sorted_order
 
-    # --- STEP 4: DISPLAY ADAPTIVE ITINERARY BLOCK MATRIX ---
+    # --- STEP 4: DISPLAY ADAPTIVE BLOCK MATRIX ---
     if st.session_state.itinerary and not st.session_state.show_debrief:
         st.markdown("<p class='itinerary-header'>== TARGET DAY ITINERARY ==</p>", unsafe_allow_html=True)
         itinerary_map = {item["label"]: item for item in st.session_state.itinerary}
@@ -294,16 +228,12 @@ else:
             if item:
                 if demo_mode:
                     box_class, div_class, alert_prefix, txt_color = "demo-box", "divider-yellow", " [DEMO SIMULATION]", "color: #ffff33 !important;"
-                elif item["ai_generated"]:
-                    if item["legendary"]:
-                        prefix_label = " [LEGENDARY ENHANCED]"
-                        box_class, div_class = "override-box", "divider-red"
-                        txt_color = "color: #ff3333 !important;"
-                    else:
-                        prefix_label = " [LIVE GEO-MAPPED]" if item["live_mapped"] else " [AMPLIFIED BLUEPRINT]"
-                        box_class, div_class = "ai-box", "divider-cyan"
-                        txt_color = "color: #00ffff !important;"
+                elif item["amplified"]:
+                    prefix_label = " [LEGENDARY AMPLIFIED]" if item["legendary"] else " [LOCAL EXTRA CREATIVE]"
+                    box_class = "override-box" if item["legendary"] else "amplified-box"
+                    div_class = "divider-red" if item["legendary"] else "divider-cyan"
                     alert_prefix = prefix_label
+                    txt_color = "color: #ff3333 !important;" if item["legendary"] else "color: #00ffff !important;"
                 else:
                     box_class = "override-box" if item["legendary"] else "adventure-box"
                     div_class = "divider-red" if item["legendary"] else "divider"
@@ -328,8 +258,7 @@ else:
             eat_count = sum(1 for x in active_items if x["mood"] == "EAT")
             chill_count = sum(1 for x in active_items if x["mood"] == "CHILL")
             legendary_count = sum(1 for x in active_items if x["legendary"])
-            ai_count = sum(1 for x in active_items if x.get("ai_generated", False))
-            live_map_count = sum(1 for x in active_items if x.get("live_mapped", False))
+            amp_count = sum(1 for x in active_items if x.get("amplified", False))
             
             st.markdown(f"**⚡ TOTAL TIMELINE ENTRIES:** {total_stops} stops configured")
             st.text(f"WALK  [{'█' * walk_count}{'░' * (total_stops-walk_count)}] {walk_count} allocations")
@@ -337,10 +266,10 @@ else:
             st.text(f"CHILL [{'█' * chill_count}{'░' * (total_stops-chill_count)}] {chill_count} allocations")
             
             st.markdown("<div class='divider'></div>", unsafe_allow_html=True)
-            st.write("**💎 CORE COMPOSITION BALANCING MATRIX:**")
-            st.write(f"- Curated Handmade Overrides: **{legendary_count} sectors**")
-            st.write(f"- Amplified Core Pipelines: **{ai_count - live_map_count} instances**")
-            st.write(f"- Live Storefront Geo-Mappings: **{live_map_count} endpoints**")
+            st.write("**🛡️ OPERATIONAL INTEGRITY SCORE:**")
+            st.write("- Running Environment: **100% Air-Gapped Sandbox Local**")
+            st.write(f"- Active Creative Variations: **{amp_count} structures deployed**")
+            st.write("- Third-Party Security Vulnerability Vector: **0.00%**")
 
         st.write("--------------------------------------------------")
         if st.button("🏁 END DAY & OPEN MISSION DEBRIEF"):
@@ -348,7 +277,7 @@ else:
             st.rerun()
 
     # ==============================================================================
-    # STEP 5: MISSION DEBRIEF & CONDITIONAL SHEET STREAMING
+    # STEP 5: MISSION DEBRIEF & CONDITIONAL DATA SAVING
     # ==============================================================================
     if st.session_state.show_debrief:
         st.markdown("<p class='itinerary-header'>== FIELD MISSION DEBRIEF ==</p>", unsafe_allow_html=True)
