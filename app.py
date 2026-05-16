@@ -38,7 +38,8 @@ st.write("--------------------------------------------------")
 ai_enabled = False
 if "HF_API_KEY" in st.secrets:
     HF_API_KEY = st.secrets["HF_API_KEY"]
-    API_URL = "https://api-inference.huggingface.co/models/meta-llama/Meta-Llama-3-8B-Instruct"
+    API_URL = "https://router.huggingface.co/hf-inference/v1/chat/completions"
+
     headers = {"Authorization": f"Bearer {HF_API_KEY}"}
     ai_enabled = True
 
@@ -103,41 +104,8 @@ else:
             if st.button("➕ ADD CHILL"): st.session_state.active_trigger = "CHILL"
 
         # ==============================================================================
-        # STEP 2: STOCHASTIC & AI AMPLIFICATION ENGINE (WITH PARSING REINFORCEMENTS)
-        # ==============================================================================
-        if st.session_state.active_trigger:
-            current_action = st.session_state.active_trigger
-            is_legendary = False
-            is_ai_generated = False
-            
-            # Context-Aware Baseline Extraction Strategy
-            if has_override:
-                chosen_package = random.choice(overrides[st.session_state.current_hood]["packages"])
-                base_vibe = chosen_package["vibe"]
-                valid_missions = [m for m in chosen_package["missions"] if current_action in m.upper() or (current_action == "WALK" and "EAT" not in m.upper() and "CHILL" not in m.upper())]
-                if not valid_missions:
-                    valid_missions = chosen_package["missions"]
-                base_mission = random.choice(valid_missions)
-                is_legendary = True
-            else:
-                if current_action == "EAT":
-                    base_vibe = "CULINARY INTERCEPT MATRIX // AVOCADO-FREE PESCATARIAN PROFILE"
-                    base_mission = random.choice(adventure_pool["EAT"]["missions"]) if "EAT" in adventure_pool else "Locate a marketplace or window ledge. Secure shared plates. Zero land-animal broths or meats, zero avocados."
-                elif current_action == "CHILL":
-                    base_vibe = "STATIC STATIONARY ANCHOR // ATMOSPHERIC CALIBRATION"
-                    base_mission = random.choice(adventure_pool["CHILL"]["missions"]) if "CHILL" in adventure_pool else "Halt transit vector. Identify a step, bench, or architectural edge to process the local environment framework silently."
-                else:  # WALK
-                    base_vibe = random.choice(adventure_pool["vibes"])
-                    base_mission = random.choice(adventure_pool["WALK"]["missions"]) if "WALK" in adventure_pool else random.choice(adventure_pool.get("missions", ["Document structural geometric features on foot."]))
-
-            # UI Control Switch Layer
-            st.write("---")
-            use_ai = st.checkbox("🧠 ENGAGE LIVE HUGGING FACE COGNITION", value=True,
-                                 help="When checked, uses an open-source model to rewrite descriptions. Uncheck for instant, local generation.")
-
-            vibe = base_vibe
-            mission = base_mission
-
+            # STEP 2: REINFORCED HYBRID GENERATION DETECTOR
+            # ==============================================================================
             if use_ai and ai_enabled:
                 with st.spinner(f"🧠 STRUCTURING EXTENDED {current_action} DATASETS..."):
                     try:
@@ -166,13 +134,13 @@ else:
                             "parameters": {"max_new_tokens": 250, "temperature": 0.6, "return_full_text": False}
                         }
                         
-                        response = requests.post(API_URL, headers=headers, json=payload)
+                        response = requests.post(API_URL, headers=headers, json=payload, timeout=7)
+                        response.raise_for_status() # Force error check
                         response_data = response.json()
                         
                         output_text = response_data[0]['generated_text'] if isinstance(response_data, list) else response_data['generated_text']
                         ai_response = output_text.split("<|start_header_id|>assistant<|end_header_id|>")[-1].strip()
                         
-                        # Defensively sanitize and split token entries to handle capitalization fluctuations
                         for line in ai_response.split("\n"):
                             clean_line = line.replace("**", "").strip()
                             if clean_line.upper().startswith("VIBE:"):
@@ -182,15 +150,17 @@ else:
                         
                         is_ai_generated = True
                     except Exception as e:
-                        vibe = f"LOCAL FALLBACK // {base_vibe}"
-                        mission = base_mission
-            else:
+                        # SECURITY VALVE: If cloud logic fails, immediately force a hard local permutation layout
+                        use_ai = False 
+
+            # Local generation engine runs if use_ai is False OR if the cloud try block failed above
+            if not is_ai_generated:
                 prefix = random.choice(cyber_prefixes)
                 atmosphere = random.choice(cyber_atmospheres[current_action])
-                vibe = f"{prefix} // {base_vibe}"
+                vibe = f"LOCAL FALLBACK // {base_vibe}"
                 mission = f"[{prefix} ENGAGED]: {atmosphere} {st.session_state.current_hood}. {base_mission}"
 
-            # Build a random fingerprint hash
+            # Build a totally random unique fingerprint string to prevent duplicate multiselect crashes
             random_hash = random.randint(1000, 9999)
             unique_id = f"{current_action} [{random_hash}]: {mission[:20]}..."
 
@@ -204,6 +174,7 @@ else:
             })
             st.session_state.order_list.append(unique_id)
             
+            # CLEAR REGISTERS AND SHUT DOWN REFRESH LOOP
             st.session_state.active_trigger = None
             st.rerun()
 
