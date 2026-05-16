@@ -109,14 +109,14 @@ def trigger_action_callback(action_type):
     
     if ai_enabled:
         try:
-            # CORRECTION: Remapped schema keyword explicitly to 'system_instruction' to align with Google Cloud's REST standards
+            # 🌟 FIXED CRITICAL SYNTAX: Forced parameters to use correct developer API camelCase fields
             payload = {
                 "contents": [{
                     "parts": [{
                         "text": f"Enhance this configuration profile:\nNEIGHBORHOOD: {st.session_state.current_hood}\nACTION CATEGORY: {action_type}\nBASE VIBE BLUEPRINT: {base_vibe}\nBASE MISSION BLUEPRINT: {base_mission}"
                     }]
                 }],
-                "system_instruction": {
+                "systemInstruction": {
                     "parts": [{
                         "text": f"""You are an advanced content-enhancement engine for a text-adventure game set in NYC. 
                         Match the tone of a high-tech tactical terminal or cyberpunk operative deck.
@@ -138,8 +138,8 @@ def trigger_action_callback(action_type):
                         MISSION: [Text here]"""
                     }]
                 },
-                "generation_config": {
-                    "temperature": 0.3,
+                "generationConfig": {
+                    "temperature": 0.4,
                     "maxOutputTokens": 250
                 }
             }
