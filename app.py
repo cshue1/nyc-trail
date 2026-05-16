@@ -4,10 +4,10 @@ import json
 from streamlit_gsheets import GSheetsConnection
 import pandas as pd
 from datetime import datetime
-import requests
 import os
 from dotenv import load_dotenv
-import google.genai as genai
+from google import genai
+from google.genai import types
 
 # Load environment variables from .env if available
 load_dotenv()
@@ -49,24 +49,31 @@ if demo_mode:
 st.write("--------------------------------------------------")
 
 # ==============================================================================
-# INITIALIZE HIGH-SPEED GOOGLE GEMINI CORE LINK (ONCE PER SESSION)
+# INITIALIZE GOOGLE GENAI CLIENT CORE LINK (ONCE PER SESSION)
 # ==============================================================================
 if st.session_state.ai_active_model is None:
     gemini_api_key = st.secrets.get("GEMINI_API_KEY") or os.getenv("GEMINI_API_KEY")
     
     if gemini_api_key:
         try:
-            genai.configure(api_key=gemini_api_key)
+            # Instantiate a validation client using the new client-based SDK
+            test_client = genai.Client(api_key=gemini_api_key)
+            
             # Standard deployment configurations check (Free tier targets)
-            for model_name in ["gemini-1.5-flash", "gemini-2.5-flash", "gemini-pro"]:
+            for model_name in ["gemini-2.5-flash", "gemini-1.5-flash", "gemini-pro"]:
                 try:
-                    test_model = genai.GenerativeModel(model_name)
-                    # Low-latency ping call to verify connection layer integrity
-                    test_model.generate_content("Ping", generation_config={"max_output_tokens": 5})
+                    # Low-latency ping call to verify connection layer integrity via new SDK
+                    test_client.models.generate_content(
+                        model=model_name,
+                        contents="Ping",
+                        config=types.GenerateContentConfig(max_output_tokens=5)
+                    )
                     st.session_state.ai_active_model = model_name
                     break
                 except Exception:
                     continue
+            if not st.session_state.ai_active_model:
+                st.session_state.ai_active_model = "OFFLINE"
         except Exception as e:
             st.sidebar.warning(f"⚠️ SDK Core configuration failed: {str(e)}")
             st.session_state.ai_active_model = "OFFLINE"
@@ -99,12 +106,12 @@ cyber_atmospheres = {
 }
 
 # ==============================================================================
-# 🤖 GEMINI MISSION ENHANCEMENT ENGINE
+# 🤖 GEMINI MISSION ENHANCEMENT ENGINE (NEW CLIENT IMPLEMENTATION)
 # ==============================================================================
 @st.cache_data(ttl=3600)
 def enhance_mission_with_gemini(neighborhood, action_type, base_vibe, base_mission, active_model_name, execution_entropy):
     """
-    Enhance mission description using Gemini AI SDK.
+    Enhance mission description using modern Google GenAI SDK Client structure.
     Returns tuple of (vibe, mission, is_ai_generated)
     execution_entropy forces fresh generation by breaking the Streamlit cache layout on new clicks.
     """
@@ -134,13 +141,16 @@ BASE VIBE BLUEPRINT: {base_vibe}
 BASE MISSION BLUEPRINT: {base_mission}"""
     
     try:
-        model = genai.GenerativeModel(active_model_name)
-        response = model.generate_content(
-            f"{system_prompt}\n\n{user_prompt}",
-            generation_config={
-                "temperature": 0.6,
-                "max_output_tokens": 250,
-            }
+        gemini_api_key = st.secrets.get("GEMINI_API_KEY") or os.getenv("GEMINI_API_KEY")
+        client = genai.Client(api_key=gemini_api_key)
+        
+        response = client.models.generate_content(
+            model=active_model_name,
+            contents=f"{system_prompt}\n\n{user_prompt}",
+            config=types.GenerateContentConfig(
+                temperature=0.6,
+                max_output_tokens=250,
+            )
         )
         ai_response = response.text
         
