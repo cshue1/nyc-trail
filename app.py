@@ -11,7 +11,7 @@ import requests
 # ==============================================================================
 st.set_page_config(page_title="NYC TRAIL PLANNER", page_icon="🤠", layout="centered")
 
-st.title("== NYC TRAIL PLANNER v14.0 ==")
+st.title("== NYC TRAIL PLANNER v15.0 ==")
 
 # ==============================================================================
 # DASHBOARD SYSTEM CONTROL HEADER
@@ -67,7 +67,7 @@ if "show_debrief" not in st.session_state: st.session_state.show_debrief = False
 if "used_missions" not in st.session_state: st.session_state.used_missions = []
 
 # ==============================================================================
-# 🧠 PROTECTED STATE CALLBACK CORES (GEMINI SYSTEM TRANSITION)
+# 🧠 PROTECTED STATE CALLBACK CORES (STRICT REST FORMATTING FIXED)
 # ==============================================================================
 def trigger_action_callback(action_type):
     overrides = adventure_pool.get("special_overrides", {})
@@ -109,14 +109,14 @@ def trigger_action_callback(action_type):
     
     if ai_enabled:
         try:
-            # Re-engineered payload mapping system instructions to Google's strict REST parameters
+            # CORRECTION: Remapped schema keyword explicitly to 'system_instruction' to align with Google Cloud's REST standards
             payload = {
                 "contents": [{
                     "parts": [{
                         "text": f"Enhance this configuration profile:\nNEIGHBORHOOD: {st.session_state.current_hood}\nACTION CATEGORY: {action_type}\nBASE VIBE BLUEPRINT: {base_vibe}\nBASE MISSION BLUEPRINT: {base_mission}"
                     }]
                 }],
-                "systemInstruction": {
+                "system_instruction": {
                     "parts": [{
                         "text": f"""You are an advanced content-enhancement engine for a text-adventure game set in NYC. 
                         Match the tone of a high-tech tactical terminal or cyberpunk operative deck.
@@ -138,8 +138,8 @@ def trigger_action_callback(action_type):
                         MISSION: [Text here]"""
                     }]
                 },
-                "generationConfig": {
-                    "temperature": 0.5,
+                "generation_config": {
+                    "temperature": 0.3,
                     "maxOutputTokens": 250
                 }
             }
@@ -162,7 +162,7 @@ def trigger_action_callback(action_type):
                     vibe = extracted_vibe
                     mission = extracted_mission
                     is_ai_generated = True
-        except Exception as e:
+        except Exception:
             pass
 
     if not is_ai_generated:
@@ -244,7 +244,7 @@ else:
                 if demo_mode:
                     alert_prefix = " [DEMO SIMULATION]"
                 elif item["ai_generated"]:
-                    # 🤖 VISUAL MATRIX INDICATOR ENGAGED FOR LIVE AI ENHANCEMENTS
+                    # Clean visual signal emoji linked up directly
                     alert_prefix = " 🤖 [AI CLOUD ENHANCED]"
                 else:
                     alert_prefix = " [LOCAL CREATIVE]"
