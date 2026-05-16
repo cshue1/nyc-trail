@@ -11,7 +11,7 @@ import requests
 # ==============================================================================
 st.set_page_config(page_title="NYC TRAIL PLANNER", page_icon="🤠", layout="centered")
 
-st.title("== NYC TRAIL PLANNER v15.0 ==")
+st.title("== NYC TRAIL PLANNER v16.0 ==")
 
 # ==============================================================================
 # DASHBOARD SYSTEM CONTROL HEADER
@@ -39,7 +39,6 @@ st.write("--------------------------------------------------")
 ai_enabled = False
 if "GEMINI_API_KEY" in st.secrets:
     GEMINI_API_KEY = st.secrets["GEMINI_API_KEY"]
-    # Dedicated high-speed Google AI API gateway URL
     API_URL = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GEMINI_API_KEY}"
     headers = {"Content-Type": "application/json"}
     ai_enabled = True
@@ -67,7 +66,7 @@ if "show_debrief" not in st.session_state: st.session_state.show_debrief = False
 if "used_missions" not in st.session_state: st.session_state.used_missions = []
 
 # ==============================================================================
-# 🧠 PROTECTED STATE CALLBACK CORES (STRICT REST FORMATTING FIXED)
+# 🧠 PROTECTED STATE CALLBACK CORES (STRICT DICTIONARY ROUTING POOLS)
 # ==============================================================================
 def trigger_action_callback(action_type):
     overrides = adventure_pool.get("special_overrides", {})
@@ -80,7 +79,8 @@ def trigger_action_callback(action_type):
     if has_override:
         chosen_package = random.choice(overrides[st.session_state.current_hood]["packages"])
         base_vibe = chosen_package["vibe"]
-        valid_missions = chosen_package.get(action_type, chosen_package.get("missions", []))
+        # ROUTING SAFETY LOCKED: Looks for specific category arrays inside your local override pools
+        valid_missions = chosen_package.get(action_type, [])
         if not valid_missions:
             valid_missions = chosen_package.get("missions", ["Explore local layout structures."])
         
@@ -88,6 +88,7 @@ def trigger_action_callback(action_type):
         base_mission = random.choice(unused_override if unused_override else valid_missions)
         is_legendary = True
     else:
+        # ROUTING SAFETY LOCKED: Pulls directly from standard isolated keys, avoiding keyword matching flaws
         if action_type == "EAT":
             base_vibe = "CULINARY INTERCEPT MATRIX // AVOCADO-FREE PESCATARIAN PROFILE"
             pool = adventure_pool.get("EAT", {}).get("missions", ["Locate a marketplace counter. Secure shared plates. Zero land-meat broths, zero avocados."])
@@ -109,7 +110,6 @@ def trigger_action_callback(action_type):
     
     if ai_enabled:
         try:
-            # 🌟 FIXED CRITICAL SYNTAX: Forced parameters to use correct developer API camelCase fields
             payload = {
                 "contents": [{
                     "parts": [{
@@ -162,8 +162,8 @@ def trigger_action_callback(action_type):
                     vibe = extracted_vibe
                     mission = extracted_mission
                     is_ai_generated = True
-        except Exception:
-            pass
+        except Exception as e:
+            st.error(f"⚠️ INTERNAL API DIAGNOSTIC EXCEPTION: {e}")
 
     if not is_ai_generated:
         prefix = random.choice(cyber_prefixes)
@@ -243,8 +243,7 @@ else:
             if item:
                 if demo_mode:
                     alert_prefix = " [DEMO SIMULATION]"
-                elif item["ai_generated"]:
-                    # Clean visual signal emoji linked up directly
+                elif item.get("ai_generated", False):
                     alert_prefix = " 🤖 [AI CLOUD ENHANCED]"
                 else:
                     alert_prefix = " [LOCAL CREATIVE]"
