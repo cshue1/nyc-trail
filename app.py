@@ -56,7 +56,7 @@ if st.session_state.ai_active_model is None:
     
     if gemini_api_key:
         try:
-            # Instantiate a validation client using the new client-based SDK
+            # Instantiate validation client using modern client-based SDK
             test_client = genai.Client(api_key=gemini_api_key)
             
             # Standard deployment configurations check (Free tier targets)
@@ -176,7 +176,6 @@ BASE MISSION BLUEPRINT: {base_mission}"""
 def trigger_action_callback(action_type):
     overrides = adventure_pool.get("special_overrides", {})
     
-    # Target safety check to make sure state has a neighborhood assigned
     current_hood = st.session_state.get("current_hood")
     has_override = current_hood in overrides and "packages" in overrides[current_hood] if current_hood else False
     
@@ -221,7 +220,7 @@ def trigger_action_callback(action_type):
     is_ai_generated = False
     
     if ai_live and current_hood:
-        # Create unique timestamp token to crack cache wide open
+        # Create unique timestamp token to pass to the cached function to bust cache locks
         click_entropy = f"{datetime.now().timestamp()}_{random.randint(100, 999)}"
         
         modified_base = base_mission
