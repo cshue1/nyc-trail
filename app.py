@@ -11,7 +11,7 @@ import requests
 # ==============================================================================
 st.set_page_config(page_title="NYC TRAIL PLANNER", page_icon="🤠", layout="centered")
 
-st.title("== NYC TRAIL PLANNER v11.0 ==")
+st.title("== NYC TRAIL PLANNER v12.0 ==")
 
 # ==============================================================================
 # DASHBOARD SYSTEM CONTROL HEADER
@@ -20,13 +20,13 @@ col_info, col_toggle = st.columns([2, 1])
 with col_info:
     with st.popover("ℹ️ VIEW SYSTEM WORKFLOW"):
         st.markdown("### == AUTOMATED BACKEND LOOP ==")
-        st.write("🤖 **1. STACK:** Drop random location coordinates and load objective matrices.")
-        st.write("🧠 **2. ENHANCEMENT:** High-speed Hugging Face router optimizes text strings instantly.")
-        st.write("📸 **3. CAPTURE:** Document field entries natively on your camera roll.")
-        st.write("📊 **4. TRANSMIT:** Appends mission telemetry rows directly to your shared Google Sheet.")
+        st.write("🤖 **1. STACK:** Drop random location coordinates.")
+        st.write("🧠 **2. ENHANCEMENT:** High-speed router requests live text optimizations.")
+        st.write("📸 **3. CAPTURE:** Document field entries on camera.")
+        st.write("📊 **4. TRANSMIT:** Appends telemetry rows directly to Google Sheets.")
 
 with col_toggle:
-    demo_mode = st.toggle("🛠️ DEMO MODE", value=False, help="Blocks Google Sheet streaming updates to simulate sandboxed logs.")
+    demo_mode = st.toggle("🛠️ DEMO MODE", value=False)
 
 if demo_mode:
     st.markdown("**⚠️ SANDBOX MATRIX ENGAGED: TRANSMISSIONS DEACTIVATED ⚠️**")
@@ -39,7 +39,6 @@ st.write("--------------------------------------------------")
 ai_enabled = False
 if "HF_API_KEY" in st.secrets:
     HF_API_KEY = st.secrets["HF_API_KEY"]
-    # Unified OpenAI-compatible routing path for global serverless inference
     API_URL = "https://router.huggingface.co/v1/chat/completions"
     headers = {
         "Authorization": f"Bearer {HF_API_KEY}",
@@ -55,7 +54,6 @@ except FileNotFoundError:
     st.error("CRITICAL ERROR: MISSING ADVENTURES.JSON SOURCE DECK.")
     adventure_pool = {}
 
-# Local fallback arrays for zero-risk text amplification injections if API keys are missing
 cyber_prefixes = ["TACTICAL RECONNAISSANCE PROTOCOL", "SILENT OBJECTIVE VECTOR", "CRITICAL METRIC HUNT", "MINIMALIST FRAMING COGNITION", "GEOMETRIC MATRIX TRACKER"]
 cyber_atmospheres = {
     "WALK": ["TRACKING ON FOOT ALONG THE REINFORCED PERIMETERS OF", "NAVIGATING THE HIGH-CONTRAST URBAN CORRIDORS OF", "EXECUTING MOVEMENT DRILLS DOWN THE BLOCKS OF"],
@@ -63,7 +61,6 @@ cyber_atmospheres = {
     "CHILL": ["LOCATING A STATIONARY REST PROFILE DECK AMIDST", "ESTABLISHING A STATIC OBSERVATION SECTOR IN", "ANCHORING POSITION TO ASSIMILATE THE AMBIENT GRID OF"]
 }
 
-# Initialize unified session layout variables securely
 if "started" not in st.session_state: st.session_state.started = False
 if "current_hood" not in st.session_state: st.session_state.current_hood = None
 if "itinerary" not in st.session_state: st.session_state.itinerary = []
@@ -72,10 +69,9 @@ if "show_debrief" not in st.session_state: st.session_state.show_debrief = False
 if "used_missions" not in st.session_state: st.session_state.used_missions = []
 
 # ==============================================================================
-# 🧠 PROTECTED STATE CALLBACK CORES (PREVENTS REPEATED ACTIONS AND RERUN LOSSES)
+# 🧠 PROTECTED STATE CALLBACK CORES (RE-ENGINEERED ROOT EXTRACTION)
 # ==============================================================================
 def trigger_action_callback(action_type):
-    """Processes asset pulls inside a protected callback container before any script re-execution."""
     overrides = adventure_pool.get("special_overrides", {})
     has_override = st.session_state.current_hood in overrides and "packages" in overrides[st.session_state.current_hood]
     
@@ -86,42 +82,40 @@ def trigger_action_callback(action_type):
     if has_override:
         chosen_package = random.choice(overrides[st.session_state.current_hood]["packages"])
         base_vibe = chosen_package["vibe"]
-        valid_missions = [m for m in chosen_package["missions"] if action_type in m.upper() or (action_type == "WALK" and "EAT" not in m.upper() and "CHILL" not in m.upper())]
+        # FIX: Access localized sub-arrays explicitly by category key name instead of searching strings
+        valid_missions = chosen_package.get(action_type, chosen_package.get("missions", []))
         if not valid_missions:
-            valid_missions = chosen_package["missions"]
+            valid_missions = chosen_package.get("missions", ["Explore local layout structures."])
         
         unused_override = [m for m in valid_missions if m not in st.session_state.used_missions]
         base_mission = random.choice(unused_override if unused_override else valid_missions)
         is_legendary = True
     else:
+        # FIX: Directly map category arrays to remove keyword string containment bugs
         if action_type == "EAT":
             base_vibe = "CULINARY INTERCEPT MATRIX // AVOCADO-FREE PESCATARIAN PROFILE"
             pool = adventure_pool.get("EAT", {}).get("missions", ["Locate a marketplace counter. Secure shared plates. Zero land-meat broths, zero avocados."])
-            unused = [m for m in pool if m not in st.session_state.used_missions]
-            base_mission = random.choice(unused if unused else pool)
         elif action_type == "CHILL":
             base_vibe = "STATIC STATIONARY ANCHOR // ATMOSPHERIC CALIBRATION"
             pool = adventure_pool.get("CHILL", {}).get("missions", ["Halt transit vector. Identify a step or architectural ledge to sit silently."])
-            unused = [m for m in pool if m not in st.session_state.used_missions]
-            base_mission = random.choice(unused if unused else pool)
         else:  # WALK
             base_vibe = random.choice(adventure_pool.get("vibes", ["URBAN ARCHITECTURE MATRIX"]))
             pool = adventure_pool.get("WALK", {}).get("missions", ["Document structural geometric features on foot."])
-            unused = [m for m in pool if m not in st.session_state.used_missions]
-            base_mission = random.choice(unused if unused else pool)
+            
+        unused = [m for m in pool if m not in st.session_state.used_missions]
+        base_mission = random.choice(unused if unused else pool)
 
-    # Hard-commit to exclusion list instantly inside state memories
     st.session_state.used_missions.append(base_mission)
     
-    # Pre-populate defaults
     vibe = base_vibe
     mission = base_mission
     is_ai_generated = False
     
-    # Fire network handshake synchronously while execution path is cleanly locked
     if ai_enabled:
         try:
+            # FIX: Specified a high-speed, fully cached router model class
             payload = {
+                "model": "Qwen/Qwen2.5-72B-Instruct",
                 "messages": [
                     {
                         "role": "system",
@@ -174,13 +168,11 @@ def trigger_action_callback(action_type):
         except Exception:
             pass
 
-    # Render local text variations defensively if AI drops link
     if not is_ai_generated:
         prefix = random.choice(cyber_prefixes)
         atmosphere = random.choice(cyber_atmospheres[action_type])
         vibe = f"LOCAL FALLBACK // {base_vibe}"
         
-        # Check if identical string values are rendering simultaneously
         is_duplicate = any(item["mission"].endswith(base_mission) for item in st.session_state.itinerary)
         if is_duplicate:
             mission = f"[{prefix} RE-ROUTE ACTIVE]: ALTERNATE PHASE VECTOR. {atmosphere} {st.session_state.current_hood}. Pivot your objective strategy to focus on nearby architectural textures, angles, and micro-details while completing: {base_mission}"
@@ -206,7 +198,7 @@ except Exception:
     conn = None
 
 # ==============================================================================
-# STEP 1: DEPLOY REGIONAL DROP SECTOR
+# MAIN PAGE ROUTING RENDER LOOPS
 # ==============================================================================
 if not st.session_state.started:
     st.write("READY TO ASSIGN YOUR REGIONAL DROP SECTOR?")
@@ -226,7 +218,6 @@ else:
         st.write("CHOOSE YOUR STRATEGY FOR THE NEXT STOP IN THIS AREA:")
         col1, col2, col3 = st.columns(3)
 
-        # BUTTON CORES UPGRADED TO CALL BACK ROUTINES
         with col1:
             st.button("➕ ADD WALK", on_click=trigger_action_callback, args=["WALK"])
         with col2:
@@ -274,7 +265,6 @@ else:
             walk_count = sum(1 for x in active_items if x["mood"] == "WALK")
             eat_count = sum(1 for x in active_items if x["mood"] == "EAT")
             chill_count = sum(1 for x in active_items if x["mood"] == "CHILL")
-            legendary_count = sum(1 for x in active_items if x["legendary"])
             ai_count = sum(1 for x in active_items if x.get("ai_generated", False))
             
             st.markdown(f"**⚡ TOTAL TIMELINE ENTRIES:** {total_stops} stops configured")
@@ -287,74 +277,66 @@ else:
             st.write(f"- Running AI Cloud Core: **{'CONNECTED (HF ULTRA ROUTER)' if ai_enabled else 'OFFLINE (FALLBACK EMBEDDED)'}**")
             st.write(f"- Active AI Generations: **{ai_count} modules loaded**")
             st.write(f"- Unique Memory Tracking Pool Size: **{len(st.session_state.used_missions)} keys registered**")
-            st.write(f"- Cloud Transmission Safety Block: **{'ENGAGED (SANDBOX OVERRIDE)' if demo_mode else 'LIVE TO LEDGER'}**")
+            st.write(f"- Cloud Transmission Safety Block: **{'LIVE TO LEDGER' if not demo_mode else 'ENGAGED'}**")
 
         st.write("--------------------------------------------------")
         if st.button("🏁 END DAY & OPEN MISSION DEBRIEF"):
             st.session_state.show_debrief = True
             st.rerun()
 
-    # ==============================================================================
-    # STEP 5: MISSION DEBRIEF & CONDITIONAL DATA SAVING
-    # ==============================================================================
-    if st.session_state.show_debrief:
-        st.markdown("### == FIELD MISSION DEBRIEF ==")
-        st.write("RECORD CURRENT TRACKING STATS TO YOUR SHARABLE DATABASE LEDGER:")
-        st.markdown("---")
-        
-        itinerary_map = {item["label"]: item for item in st.session_state.itinerary}
-        current_date = datetime.now().strftime("%Y-%m-%d")
-        
-        new_rows = []
-        
-        for index, label in enumerate(st.session_state.order_list):
-            item = itinerary_map.get(label)
-            if item:
-                st.markdown(f"### STOP {index + 1}: {item['mood']}")
-                st.write(f"**Vibe:** {item['vibe']}")
-                st.write(f"**Mission:** {item['mission']}")
-                
-                status = st.radio(f"Stop {index + 1} Status:", ["COMPLETED", "ABANDONED/SKIPPED"], key=f"status_{index}")
-                notes = st.text_area(f"Quick Notes (Stop {index + 1}):", placeholder="What did you eat? Best photo details? Inside jokes...", key=f"notes_{index}")
-                st.markdown("---")
-                
-                new_rows.append({
-                    "Date": current_date,
-                    "Neighborhood": st.session_state.current_hood,
-                    "Stop_Number": str(index + 1),
-                    "Mood": item['mood'],
-                    "Vibe": item['vibe'],
-                    "Mission": item['mission'],
-                    "Status": status,
-                    "Notes": notes
-                })
-        
-        st.write("### 💾 TRANSMIT STRATEGY REPORT")
-        
-        if demo_mode:
-            if st.button("⚡ SIMULATE CLOUD TRANSMISSION (DEMO)"):
-                st.warning("SIMULATION LOG: Cloud sync bypassed. Previewing current staging payload:")
-                st.dataframe(pd.DataFrame(new_rows))
-                st.success("DEMO SUCCESS: Log array staging simulation verified with zero errors!")
+# ==============================================================================
+# STEP 5: MISSION DEBRIEF & CONDITIONAL DATA SAVING
+# ==============================================================================
+if st.session_state.show_debrief:
+    st.markdown("### == FIELD MISSION DEBRIEF ==")
+    st.write("RECORD CURRENT TRACKING STATS TO YOUR SHARABLE DATABASE LEDGER:")
+    st.markdown("---")
+    
+    itinerary_map = {item["label"]: item for item in st.session_state.itinerary}
+    current_date = datetime.now().strftime("%Y-%m-%d")
+    new_rows = []
+    
+    for index, label in enumerate(st.session_state.order_list):
+        item = itinerary_map.get(label)
+        if item:
+            st.markdown(f"### STOP {index + 1}: {item['mood']}")
+            st.write(f"**Vibe:** {item['vibe']}")
+            st.write(f"**Mission:** {item['mission']}")
+            
+            status = st.radio(f"Stop {index + 1} Status:", ["COMPLETED", "ABANDONED/SKIPPED"], key=f"status_{index}")
+            notes = st.text_area(f"Quick Notes (Stop {index + 1}):", placeholder="Notes...", key=f"notes_{index}")
+            st.markdown("---")
+            
+            new_rows.append({
+                "Date": current_date,
+                "Neighborhood": st.session_state.current_hood,
+                "Stop_Number": str(index + 1),
+                "Mood": item['mood'],
+                "Vibe": item['vibe'],
+                "Mission": item['mission'],
+                "Status": status,
+                "Notes": notes
+            })
+    
+    if st.button("⚡ APPEND CAMPAIGN TO SHARED CLOUD SHEET"):
+        if conn is not None and not demo_mode:
+            try:
+                existing_df = conn.read(ttl=0)
+                existing_df['Stop_Number'] = existing_df['Stop_Number'].astype(str)
+                fresh_df = pd.DataFrame(new_rows)
+                updated_df = pd.concat([existing_df, fresh_df], ignore_index=True)
+                conn.update(data=updated_df)
+                st.success("SUCCESS: Telemetry committed to Google Cloud ledger!")
+            except Exception as e:
+                st.error(f"TRANSMISSION INTERRUPTED: {e}")
         else:
-            if st.button("⚡ APPEND CAMPAIGN TO SHARED CLOUD SHEET"):
-                if conn is not None:
-                    try:
-                        existing_df = conn.read(ttl=0)
-                        existing_df['Stop_Number'] = existing_df['Stop_Number'].astype(str)
-                        fresh_df = pd.DataFrame(new_rows)
-                        updated_df = pd.concat([existing_df, fresh_df], ignore_index=True)
-                        conn.update(data=updated_df)
-                        st.success("SUCCESS: Telemetry array successfully committed to Google Cloud ledger!")
-                    except Exception as e:
-                        st.error(f"TRANSMISSION INTERRUPTED: {e}")
-                else:
-                    st.error("ERROR: Sheets Connection Offline. Verify secrets token credentials.")
-        
-        if st.button("⬅️ RETURN TO TIMELINE EDITING"):
-            st.session_state.show_debrief = False
-            st.rerun()
+            st.warning("Sheets connection unavailable or Demo Mode active.")
+            
+    if st.button("⬅️ RETURN TO TIMELINE EDITING"):
+        st.session_state.show_debrief = False
+        st.rerun()
 
+if st.session_state.started:
     if st.button("ABANDON MISSION & RESET MATRIX"):
         st.session_state.started = False
         st.session_state.current_hood = None
