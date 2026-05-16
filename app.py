@@ -54,31 +54,36 @@ st.write("--------------------------------------------------")
 if st.session_state.ai_active_model is None:
     gemini_api_key = st.secrets.get("GEMINI_API_KEY") or os.getenv("GEMINI_API_KEY")
     
+    print("\n--- [DEBUG SYSTEM INITIALIZATION] ---")
+    print(f"Checking for API Key presence: {'FOUND' if gemini_api_key else 'MISSING'}")
+    
     if gemini_api_key:
         try:
-            # Instantiate validation client using modern client-based SDK
             test_client = genai.Client(api_key=gemini_api_key)
-            
-            # Standard deployment configurations check (Free tier targets)
+            # Tier targets checking loop
             for model_name in ["gemini-2.5-flash", "gemini-1.5-flash", "gemini-pro"]:
                 try:
-                    # Low-latency ping call to verify connection layer integrity via new SDK
+                    print(f"Testing connectivity validation ping on: {model_name}")
                     test_client.models.generate_content(
                         model=model_name,
                         contents="Ping",
                         config=types.GenerateContentConfig(max_output_tokens=5)
                     )
                     st.session_state.ai_active_model = model_name
+                    print(f"Successfully locked active engine: {model_name}")
                     break
-                except Exception:
+                except Exception as ping_err:
+                    print(f"Ping failed for {model_name}: {ping_err}")
                     continue
             if not st.session_state.ai_active_model:
                 st.session_state.ai_active_model = "OFFLINE"
         except Exception as e:
             st.sidebar.warning(f"⚠️ SDK Core configuration failed: {str(e)}")
+            print(f"SDK Critical Core configuration exception raised: {e}")
             st.session_state.ai_active_model = "OFFLINE"
     else:
         st.session_state.ai_active_model = "OFFLINE"
+    print("---------------------------------------\n")
 
 # Display Engine Link Status in Sidebar
 if st.session_state.ai_active_model and st.session_state.ai_active_model != "OFFLINE":
@@ -106,7 +111,7 @@ cyber_atmospheres = {
 }
 
 # ==============================================================================
-# 🤖 GEMINI MISSION ENHANCEMENT ENGINE (NEW CLIENT IMPLEMENTATION)
+# 🤖 GEMINI MISSION ENHANCEMENT ENGINE (NEW CLIENT IMPLEMENTATION WITH LOGGING)
 # ==============================================================================
 @st.cache_data(ttl=3600)
 def enhance_mission_with_gemini(neighborhood, action_type, base_vibe, base_mission, active_model_name, execution_entropy):
@@ -115,6 +120,10 @@ def enhance_mission_with_gemini(neighborhood, action_type, base_vibe, base_missi
     Returns tuple of (vibe, mission, is_ai_generated)
     execution_entropy forces fresh generation by breaking the Streamlit cache layout on new clicks.
     """
+    print("\n--- [CONSOLE LOG: GEMINI ENGINE CALL] ---")
+    print(f"Target Neighborhood: {neighborhood} | Action: {action_type}")
+    print(f"Busting Cache via Entropy Metric Key: {execution_entropy}")
+    
     system_prompt = f"""You are an advanced content-enhancement engine for a text-adventure game set in NYC. 
 Match the tone of a high-tech tactical terminal or cyberpunk operative deck.
 
@@ -144,6 +153,7 @@ BASE MISSION BLUEPRINT: {base_mission}"""
         gemini_api_key = st.secrets.get("GEMINI_API_KEY") or os.getenv("GEMINI_API_KEY")
         client = genai.Client(api_key=gemini_api_key)
         
+        print(f"Sending request payload to Google Cloud Core using {active_model_name}...")
         response = client.models.generate_content(
             model=active_model_name,
             contents=f"{system_prompt}\n\n{user_prompt}",
@@ -153,6 +163,7 @@ BASE MISSION BLUEPRINT: {base_mission}"""
             )
         )
         ai_response = response.text
+        print(f"Raw response returned successfully:\n{ai_response}")
         
         extracted_vibe = ""
         extracted_mission = ""
@@ -163,11 +174,17 @@ BASE MISSION BLUEPRINT: {base_mission}"""
                 extracted_mission = line.replace("MISSION:", "").strip()
         
         if extracted_vibe and extracted_mission:
+            print("Successfully compiled and parsed AI content tokens.")
             return extracted_vibe, extracted_mission, True
+        else:
+            print("Parsing error: Structured tags could not be resolved from raw response.")
             
     except Exception as api_err:
         st.sidebar.error(f"📡 API Engine Intercept: {str(api_err)}")
+        print(f"Critical Exception caught during API generation loop: {api_err}")
         
+    print("Executing automatic handoff back to local asset array generation loops.")
+    print("-------------------------------------------\n")
     return base_vibe, base_mission, False
 
 # ==============================================================================
@@ -220,7 +237,6 @@ def trigger_action_callback(action_type):
     is_ai_generated = False
     
     if ai_live and current_hood:
-        # Create unique timestamp token to pass to the cached function to bust cache locks
         click_entropy = f"{datetime.now().timestamp()}_{random.randint(100, 999)}"
         
         modified_base = base_mission
@@ -306,7 +322,7 @@ else:
             options=valid_itinerary_labels,
             default=current_selection
         )
-        st.session_state.order_list = sorted_order
+        st.session_state.order_list = list(dict.fromkeys(sorted_order))
 
     # --- STEP 4: DISPLAY NATIVE ADAPTIVE BLOCK MATRIX ---
     if st.session_state.itinerary and not st.session_state.show_debrief:
@@ -369,15 +385,17 @@ if st.session_state.show_debrief:
     current_date = datetime.now().strftime("%Y-%m-%d")
     new_rows = []
     
-    for index, label in enumerate(st.session_state.order_list):
+    filtered_order_list = list(dict.fromkeys(st.session_state.order_list))
+    
+    for index, label in enumerate(filtered_order_list):
         item = itinerary_map.get(label)
         if item:
             st.markdown(f"### STOP {index + 1}: {item['mood']}")
             st.write(f"**Vibe:** {item['vibe']}")
             st.write(f"**Mission:** {item['mission']}")
             
-            status = st.radio(f"Stop {index + 1} Status:", ["COMPLETED", "ABANDONED/SKIPPED"], key=f"status_{index}")
-            notes = st.text_area(f"Quick Notes (Stop {index + 1}):", placeholder="Notes...", key=f"notes_{index}")
+            status = st.radio(f"Stop {index + 1} Status:", ["COMPLETED", "ABANDONED/SKIPPED"], key=f"status_widget_{label}")
+            notes = st.text_area(f"Quick Notes (Stop {index + 1}):", placeholder="Notes...", key=f"notes_widget_{label}")
             st.markdown("---")
             
             new_rows.append({
