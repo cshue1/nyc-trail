@@ -8,6 +8,7 @@ import os
 from dotenv import load_dotenv
 from google import genai
 from google.genai import types
+from pydantic import BaseModel, Field
 
 # Load environment variables from .env if available
 load_dotenv()
@@ -111,19 +112,29 @@ cyber_atmospheres = {
 }
 
 # ==============================================================================
-# 🤖 GEMINI MISSION ENHANCEMENT ENGINE (NEW CLIENT IMPLEMENTATION WITH LOGGING)
+# 🤖 PYDANTIC SCHEMA DEFINITION FOR GEMINI OUTPUTS
 # ==============================================================================
-@st.cache_data(ttl=3600)
-def enhance_mission_with_gemini(neighborhood, action_type, base_vibe, base_mission, active_model_name, execution_entropy):
+class EnhancedMission(BaseModel):
+    vibe: str = Field(description="The exact text for the VIBE tag. Keep it strictly atmospheric.")
+    mission: str = Field(description="The exact text for the MISSION tag. Keep it strictly actionable.")
+
+# ==============================================================================
+# 🤖 GEMINI MISSION ENHANCEMENT ENGINE (NEW CLIENT IMPLEMENTATION)
+# ==============================================================================
+# Removed @st.cache_data - We want this to run fresh every time and bypass Streamlit's cache bloat
+def enhance_mission_with_gemini(neighborhood, action_type, base_vibe, base_mission, active_model_name, previously_used_missions):
     """
-    Enhance mission description using modern Google GenAI SDK Client structure.
-    Returns tuple of (vibe, mission, is_ai_generated)
-    execution_entropy forces fresh generation by breaking the Streamlit cache layout on new clicks.
+    Enhance mission description using modern Google GenAI SDK Client structure and Pydantic schemas.
     """
     print("\n--- [CONSOLE LOG: GEMINI ENGINE CALL] ---")
     print(f"Target Neighborhood: {neighborhood} | Action: {action_type}")
-    print(f"Busting Cache via Entropy Metric Key: {execution_entropy}")
     
+    # Format the exclusion list so Gemini knows exactly what to avoid
+    exclusion_text = ""
+    if previously_used_missions:
+        exclusion_text = "\nCRITICAL EXCLUSION PROTOCOL: DO NOT generate anything similar to these previously completed missions:\n"
+        exclusion_text += "\n".join(f"- {m}" for m in previously_used_missions)
+
     system_prompt = f"""You are an advanced content-enhancement engine for a text-adventure game set in NYC. 
 Match the tone of a high-tech tactical terminal or cyberpunk operative deck.
 
@@ -137,11 +148,7 @@ CRITICAL ACTION ENFORCEMENT PROTOCOLS:
 - If the category is WALK, the assignment MUST focus on walking, navigating blocks, footprints, and movement photography.
 - If the category is CHILL, the assignment MUST focus on sitting, resting, pausing, absorbing atmosphere, and stationary observation.
 - STRICT DIETARY BOUNDARY: If food is referenced, descriptions MUST be strictly pescatarian and COMPLETELY AVOCADO-FREE.
-- CRITICAL RESTRICTION: Do NOT name or recommend real commercial storefronts, specific shops, or chain brands. Keep spaces generalized to architectural textures.
-
-Output format must be exactly this strict raw text structure with no conversational chatter, asterisks, or markdown bold symbols:
-VIBE: [Text here]
-MISSION: [Text here]"""
+- CRITICAL RESTRICTION: Do NOT name or recommend real commercial storefronts, specific shops, or chain brands. Keep spaces generalized to architectural textures.{exclusion_text}"""
     
     user_prompt = f"""Enhance this configuration profile:
 NEIGHBORHOOD: {neighborhood}
@@ -158,26 +165,22 @@ BASE MISSION BLUEPRINT: {base_mission}"""
             model=active_model_name,
             contents=f"{system_prompt}\n\n{user_prompt}",
             config=types.GenerateContentConfig(
-                temperature=0.6,
-                max_output_tokens=250,
+                temperature=0.7,
+                response_mime_type="application/json", # Forces JSON output
+                response_schema=EnhancedMission,       # Maps to our Pydantic class
             )
         )
-        ai_response = response.text
-        print(f"Raw response returned successfully:\n{ai_response}")
         
-        extracted_vibe = ""
-        extracted_mission = ""
-        for line in ai_response.split("\n"):
-            if line.startswith("VIBE:"):
-                extracted_vibe = line.replace("VIBE:", "").strip()
-            elif line.startswith("MISSION:"):
-                extracted_mission = line.replace("MISSION:", "").strip()
+        # Parse the guaranteed JSON response
+        data = json.loads(response.text)
+        extracted_vibe = data.get("vibe", "").strip()
+        extracted_mission = data.get("mission", "").strip()
         
         if extracted_vibe and extracted_mission:
             print("Successfully compiled and parsed AI content tokens.")
             return extracted_vibe, extracted_mission, True
         else:
-            print("Parsing error: Structured tags could not be resolved from raw response.")
+            print("Parsing error: Keys missing from JSON response.")
             
     except Exception as api_err:
         st.sidebar.error(f"📡 API Engine Intercept: {str(api_err)}")
@@ -219,58 +222,59 @@ def trigger_action_callback(action_type):
             base_vibe = random.choice(adventure_pool.get("vibes", ["URBAN ARCHITECTURE MATRIX"]))
             pool = adventure_pool.get("WALK", {}).get("missions", ["Document structural geometric features on foot."])
 
-    # Enforce Strict Deduplication Filter Check
-    unused = [m for m in pool if m not in st.session_state.used_missions]
+    # Enforce Strict Deduplication Filter Check against the local pool
+    unused_local = [m for m in pool if m not in st.session_state.used_missions]
     
     is_forced_duplicate = False
-    if unused:
-        base_mission = random.choice(unused)
+    if unused_local:
+        base_mission = random.choice(unused_local)
     else:
         base_mission = random.choice(pool)
         is_forced_duplicate = True
-
-    # Register mission token selection to memory logs immediately
-    st.session_state.used_missions.append(base_mission)
     
-    # Try to enhance mission with Gemini SDK
     ai_live = st.session_state.ai_active_model and st.session_state.ai_active_model != "OFFLINE"
     is_ai_generated = False
+    final_vibe = base_vibe
+    final_mission = base_mission
     
+    # Try to enhance mission with Gemini SDK
     if ai_live and current_hood:
-        click_entropy = f"{datetime.now().timestamp()}_{random.randint(100, 999)}"
-        
         modified_base = base_mission
         if is_forced_duplicate:
             modified_base += " (Instruction: Pivot alternative execution style to focus on structural macro-angles, lighting variations, or micro-textures)."
             
-        vibe, mission, is_ai_generated = enhance_mission_with_gemini(
+        final_vibe, final_mission, is_ai_generated = enhance_mission_with_gemini(
             current_hood, 
             action_type, 
             base_vibe, 
             modified_base,
             st.session_state.ai_active_model,
-            click_entropy
+            st.session_state.used_missions # Pass the actual list of previous AI outputs
         )
 
+    # If AI failed or is offline, build the local string
     if not is_ai_generated:
         prefix = random.choice(cyber_prefixes)
         atmosphere = random.choice(cyber_atmospheres[action_type])
-        vibe = f"LOCAL FALLBACK // {base_vibe}"
+        final_vibe = f"LOCAL FALLBACK // {base_vibe}"
         
         hood_display = current_hood if current_hood else "CURRENT SECTOR"
         if is_forced_duplicate:
-            mission = f"[{prefix} RE-ROUTE ACTIVE]: ALTERNATE PHASE VECTOR. {atmosphere} {hood_display}. Pivot your objective strategy to focus on nearby structural textures, angles, and micro-details while completing: {base_mission}"
+            final_mission = f"[{prefix} RE-ROUTE ACTIVE]: ALTERNATE PHASE VECTOR. {atmosphere} {hood_display}. Pivot your objective strategy to focus on nearby structural textures, angles, and micro-details while completing: {base_mission}"
         else:
-            mission = f"[{prefix} ENGAGED]: {atmosphere} {hood_display}. {base_mission}"
+            final_mission = f"[{prefix} ENGAGED]: {atmosphere} {hood_display}. {base_mission}"
+
+    # Track the FINAL mission string in memory so it can be passed to the AI exclusion list next time
+    st.session_state.used_missions.append(final_mission)
 
     random_hash = random.randint(1000, 9999)
-    unique_id = f"{action_type} [{random_hash}]: {mission[:20]}..."
+    unique_id = f"{action_type} [{random_hash}]: {final_mission[:20]}..."
 
     st.session_state.itinerary.append({
         "label": unique_id,
         "mood": action_type,
-        "vibe": vibe,
-        "mission": mission,
+        "vibe": final_vibe,
+        "mission": final_mission,
         "legendary": is_legendary,
         "ai_generated": is_ai_generated
     })
