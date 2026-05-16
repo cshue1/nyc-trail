@@ -244,7 +244,8 @@ else:
                 if demo_mode:
                     alert_prefix = " [DEMO SIMULATION]"
                 elif item["ai_generated"]:
-                    alert_prefix = " [AI CLOUD ENHANCED]"
+                    # 🤖 VISUAL MATRIX INDICATOR ENGAGED FOR LIVE AI ENHANCEMENTS
+                    alert_prefix = " 🤖 [AI CLOUD ENHANCED]"
                 else:
                     alert_prefix = " [LOCAL CREATIVE]"
                 
