@@ -12,6 +12,8 @@ import requests
 st.set_page_config(page_title="NYC TRAIL PLANNER", page_icon="🤠", layout="centered")
 
 st.title("== NYC TRAIL PLANNER v9.0 ==")
+# TEMPORARY DEBUG LINE
+st.write("Available Secret Keys:", list(st.secrets.keys()))
 
 # ==============================================================================
 # DASHBOARD SYSTEM CONTROL HEADER
